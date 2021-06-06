@@ -1,2 +1,2 @@
 # botislav-bot
-Discord bot for me and homies
+Discord bot for me and my homies
