@@ -54,7 +54,10 @@ class IntentMatcher:
         if not results:
             return None
 
-        return results[0].args[0].args[0].rule.production
+        intent = results[0].args[0].args[0].rule.production
+        _logger.info(f"Matched intent '{intent}'")
+
+        return intent
 
 
 def create_intent_matcher(intent_examples_paths: List[Path]) -> IntentMatcher:
@@ -62,4 +65,3 @@ def create_intent_matcher(intent_examples_paths: List[Path]) -> IntentMatcher:
     rules = list(iter_rules_from_intents_dict(intents_dict))
     intents_parsing_table = build_text_parsing_table(rules)
     return IntentMatcher(table=intents_parsing_table)
-
