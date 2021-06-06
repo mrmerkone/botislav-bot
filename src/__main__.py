@@ -26,6 +26,7 @@ class BotislavBot(discord.Client):
                 await message.channel.send(intent)
 
 
+
 if __name__ == '__main__':
     intent_paths = list(pathlib.Path("../resources/intents/").glob("*.y*ml"))
     bot = BotislavBot(
