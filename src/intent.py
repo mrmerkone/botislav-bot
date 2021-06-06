@@ -1,4 +1,4 @@
-import yaml
+from yaml import safe_load
 from typing import Dict, List, Iterable, Optional
 from pathlib import Path
 from logging import getLogger
@@ -28,7 +28,7 @@ def load_intent_files(files: List[Path]) -> Dict[str, List[str]]:
         assert file.is_file(), f"{file.name} is not a file"
         with file.open() as f:
             _logger.info(f'Loading intents from {file.name}')
-            intents_dict.update(yaml.safe_load(f))
+            intents_dict.update(safe_load(f))
 
     return intents_dict
 
@@ -47,7 +47,7 @@ class IntentMatcher:
 
     table: ParsingTable
 
-    def match(self, phrase: str) -> Optional[str]:
+    async def match(self, phrase: str) -> Optional[str]:
         tokens = phrase.lower().split()
         results = parse(input_tokens=tokens, table=self.table)
 
