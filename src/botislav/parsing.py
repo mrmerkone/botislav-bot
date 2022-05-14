@@ -22,8 +22,8 @@ last_match: LAST_MATCH ("в"|"in")? game
 
 LAST_MATCH: "последняя"? "игра" 
           | "ласт"? "катка"
-          | "last" " "? "match"
-          | "lm"
+          | "!"? "last" " "? "match"
+          | "!"? "lm"
 
 hello: GREETING
 
