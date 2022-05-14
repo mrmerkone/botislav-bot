@@ -8,6 +8,6 @@ class BotislavError(Exception):
 
 
 class IAction(metaclass=ABCMeta):
-
     @abstractmethod
-    async def reply(self, message: Message): ...
+    async def reply(self, message: Message):
+        ...

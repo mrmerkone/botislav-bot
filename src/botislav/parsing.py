@@ -60,21 +60,18 @@ class Game(Enum):
 
 @dataclass
 class HelloAction(IAction):
-
     async def reply(self, message: Message):
         await message.channel.send("здарова")
 
 
 @dataclass
 class DotaLastMatchAction(IAction):
-
     async def reply(self, message: Message):
         await message.channel.send("dota")
 
 
 @dataclass
 class PubgLastMatchAction(IAction):
-
     async def reply(self, message: Message):
         await message.channel.send("pubg")
 
@@ -100,7 +97,7 @@ class _AstTransformer(Transformer):
                 return DotaLastMatchAction()
             if game == Game.PUBG:
                 return PubgLastMatchAction()
-            raise BotislavError("Unsupported game")
+        raise BotislavError("Unsupported game")
 
     # noinspection PyMethodMayBeStatic
     def hello(self, _):
