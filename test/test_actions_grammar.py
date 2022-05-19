@@ -1,7 +1,7 @@
 import pytest
 from lark import Tree, Token, Lark
 
-from botislav.parsing import ACTIONS_GRAMMAR
+from botislav.commands import ACTIONS_GRAMMAR
 
 
 @pytest.fixture
@@ -17,33 +17,33 @@ def parser():
             "привет",
             Tree(
                 Token("RULE", "action"),
-                [Tree(Token("RULE", "hello"), [Token("GREETING", "привет")])],
+                [Tree(Token("RULE", "greeting"), [Token("GREETING", "привет")])],
             ),
         ),
         (
             "прив",
             Tree(
                 Token("RULE", "action"),
-                [Tree(Token("RULE", "hello"), [Token("GREETING", "прив")])],
+                [Tree(Token("RULE", "greeting"), [Token("GREETING", "прив")])],
             ),
         ),
         (
             "hello",
             Tree(
                 Token("RULE", "action"),
-                [Tree(Token("RULE", "hello"), [Token("GREETING", "hello")])],
+                [Tree(Token("RULE", "greeting"), [Token("GREETING", "hello")])],
             ),
         ),
-        # last_match
+        # lastmatch
         (
             "катка в доту",
             Tree(
                 Token("RULE", "action"),
                 [
                     Tree(
-                        Token("RULE", "last_match"),
+                        Token("RULE", "lastmatch"),
                         [
-                            Token("LAST_MATCH", "катка"),
+                            Token("LASTMATCH", "катка"),
                             Tree(Token("RULE", "game"), [Token("DOTA", "доту")]),
                         ],
                     )
@@ -56,9 +56,9 @@ def parser():
                 Token("RULE", "action"),
                 [
                     Tree(
-                        Token("RULE", "last_match"),
+                        Token("RULE", "lastmatch"),
                         [
-                            Token("LAST_MATCH", "ласткатка"),
+                            Token("LASTMATCH", "ласткатка"),
                             Tree(Token("RULE", "game"), [Token("DOTA", "доту")]),
                         ],
                     )
@@ -71,10 +71,10 @@ def parser():
                 Token("RULE", "action"),
                 [
                     Tree(
-                        Token("RULE", "last_match"),
+                        Token("RULE", "lastmatch"),
                         [
                             Tree(Token("RULE", "game"), [Token("DOTA", "dota")]),
-                            Token("LAST_MATCH", "lm"),
+                            Token("LASTMATCH", "lm"),
                         ],
                     )
                 ],
@@ -86,10 +86,10 @@ def parser():
                 Token("RULE", "action"),
                 [
                     Tree(
-                        Token("RULE", "last_match"),
+                        Token("RULE", "lastmatch"),
                         [
                             Tree(Token("RULE", "game"), [Token("PUBG", "pubg")]),
-                            Token("LAST_MATCH", "lm"),
+                            Token("LASTMATCH", "lm"),
                         ],
                     )
                 ],
@@ -101,9 +101,9 @@ def parser():
                 Token("RULE", "action"),
                 [
                     Tree(
-                        Token("RULE", "last_match"),
+                        Token("RULE", "lastmatch"),
                         [
-                            Token("LAST_MATCH", "катка"),
+                            Token("LASTMATCH", "катка"),
                             Tree(Token("RULE", "game"), [Token("PUBG", "пубг")]),
                         ],
                     )
@@ -116,9 +116,9 @@ def parser():
                 Token("RULE", "action"),
                 [
                     Tree(
-                        Token("RULE", "last_match"),
+                        Token("RULE", "lastmatch"),
                         [
-                            Token("LAST_MATCH", "lastmatch"),
+                            Token("LASTMATCH", "lastmatch"),
                             Tree(Token("RULE", "game"), [Token("PUBG", "pubg")]),
                         ],
                     )

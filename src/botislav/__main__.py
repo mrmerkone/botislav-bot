@@ -1,16 +1,19 @@
 import os
 import logging
 
-from botislav.parsing import PhraseParser
+from botislav.commands import get_action_manager
 from botislav.client import BotislavClient
 
-logging.basicConfig(level=logging.INFO)
 _logger = logging.getLogger(__name__)
+
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 
 def main():
-    client = BotislavClient(parser=PhraseParser())
-    client.run(os.getenv("DISCORD_TOKEN"))
+    action_manager = get_action_manager()
+    logging.basicConfig(level=logging.INFO)
+    client = BotislavClient(action_manager=action_manager)
+    client.run(DISCORD_TOKEN)
 
 
 if __name__ == "__main__":
