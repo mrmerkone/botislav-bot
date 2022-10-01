@@ -32,8 +32,8 @@ jobs:
         uses: yc-actions/yc-sls-container-deploy@v1.0.1
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          folder-id: ${{ secrets.YC_FOLDER_ID }}
           container-name: botislav-bot
-          folder-id: botislav-bot
           revision-cores: 1
           revision-memory: 128Mb
           revision-core-fraction: 5
