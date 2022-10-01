@@ -1,7 +1,5 @@
 FROM python:3.10-slim
 
-WORKDIR /bot
-
 COPY ./requirements.txt .
 COPY ./src .
 
