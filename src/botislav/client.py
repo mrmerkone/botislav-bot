@@ -6,7 +6,9 @@ from botislav.common import Context
 
 class BotislavClient(Client):
     def __init__(self, action_manager: ActionManager):
-        super(BotislavClient, self).__init__(intents=Intents.all())
+        intents = Intents.default()
+        intents.message_content = True
+        super(BotislavClient, self).__init__(intents=intents)
         self.action_manager = action_manager
 
     async def on_message(self, message: Message):
