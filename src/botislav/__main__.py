@@ -12,13 +12,11 @@ DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 def main():
     action_manager = get_action_manager()
-
-    root = logging.getLogger()
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter("[%(levelname)s][%(asctime)s] %(name)s : %(message)s")
-    handler.setFormatter(formatter)
-    root.addHandler(handler)
-
+    logging.basicConfig(
+        stream=sys.stdout,
+        format="[%(levelname)s][%(asctime)s] %(name)s : %(message)s",
+        level=logging.INFO,
+    )
     client = BotislavClient(action_manager=action_manager)
     client.run(DISCORD_TOKEN)
 
