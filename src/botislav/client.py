@@ -1,4 +1,4 @@
-from discord import Client, Message, DMChannel
+from discord import Client, Message, DMChannel, Intents
 
 from botislav.commands import ActionManager
 from botislav.common import Context
@@ -6,7 +6,7 @@ from botislav.common import Context
 
 class BotislavClient(Client):
     def __init__(self, action_manager: ActionManager):
-        super(BotislavClient, self).__init__()
+        super(BotislavClient, self).__init__(intents=Intents.all())
         self.action_manager = action_manager
 
     async def on_message(self, message: Message):
