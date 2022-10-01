@@ -38,5 +38,5 @@ jobs:
           revision-memory: 128Mb
           revision-core-fraction: 5
           revision-image-url: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/botislav:latest
-          revision-service-account-id: main
+          revision-service-account-id: ${{ secrets.YC_SERVICE_ACCOUNT_ID }}
           revision-env: DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
