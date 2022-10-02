@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 
+from botislav import healthcheck
 from botislav.commands import get_action_manager
 from botislav.client import BotislavClient
 
@@ -18,6 +19,7 @@ def main():
         level=logging.INFO,
     )
     client = BotislavClient(action_manager=action_manager)
+    healthcheck.start(client)
     client.run(DISCORD_TOKEN)
 
 

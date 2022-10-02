@@ -8,9 +8,6 @@ jobs:
       steps:
         - uses: actions/checkout@v2
         - uses: superfly/flyctl-actions/setup-flyctl@master
-        - run: |
-            flyctl secrets set DISCORD_TOKEN=$DISCORD_TOKEN
-            flyctl deploy --remote-only
+        - run: flyctl deploy --remote-only
           env:
             FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-            DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
