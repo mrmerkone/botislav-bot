@@ -1,31 +1,31 @@
-import asyncio
-
 from attr import dataclass
 from discord import Client
+from aiohttp import web
 
 
 @dataclass
-class _ClientContext:
+class ClientHealthStatus:
     client: Client
 
-    def handle_socket_client(
-        self, _reader: asyncio.StreamReader, writer: asyncio.StreamWriter
-    ) -> None:
-        message = b"ok"
+    async def __call__(self, request: web.Request) -> web.Response:
+        message = "ok"
 
         if (
             self.client.user is None
             or not self.client.is_ready()
             or self.client.is_closed()
         ):
-            message = b"failed"
+            message = "failed"
 
-        writer.write(message)
-        writer.close()
+        return web.Response(text=message)
 
 
-def start(client: Client, port: int = 8080) -> asyncio.base_events.Server:
-    ctx = _ClientContext(client)
-    return asyncio.run(
-        asyncio.start_server(ctx.handle_socket_client, "127.0.0.1", port)
-    )
+async def start(client: Client, port: int = 8080):
+    app = web.Application()
+    app.add_routes([web.get('/', ClientHealthStatus(client))])
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "127.0.0.1", port)
+    await site.start()
+
+

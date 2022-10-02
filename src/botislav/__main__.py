@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import asyncio
 
 from botislav import healthcheck
 from botislav.commands import get_action_manager
@@ -11,7 +12,7 @@ _logger = logging.getLogger(__name__)
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 
-def main():
+async def main():
     action_manager = get_action_manager()
     logging.basicConfig(
         stream=sys.stdout,
@@ -19,9 +20,12 @@ def main():
         level=logging.INFO,
     )
     client = BotislavClient(action_manager=action_manager)
-    healthcheck.start(client)
-    client.run(DISCORD_TOKEN, log_handler=None)
+
+    await asyncio.gather(
+        client.start(DISCORD_TOKEN),
+        healthcheck.start(client, 8080)
+    )
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
