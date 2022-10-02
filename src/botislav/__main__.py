@@ -20,7 +20,7 @@ def main():
     )
     client = BotislavClient(action_manager=action_manager)
     healthcheck.start(client)
-    client.run(DISCORD_TOKEN)
+    client.run(DISCORD_TOKEN, log_handler=None)
 
 
 if __name__ == "__main__":

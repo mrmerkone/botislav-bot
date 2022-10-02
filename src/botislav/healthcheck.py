@@ -1,37 +1,31 @@
 import asyncio
 
-import discord
+from attr import dataclass
+from discord import Client
 
 
+@dataclass
 class _ClientContext:
-    """A simple class to keep context for the client handler function"""
-
-    def __init__(self, client: discord.client, bot_max_latency: float):
-        self.client = client
-        self.bot_max_latency = bot_max_latency
+    client: Client
 
     def handle_socket_client(
-        self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
+        self, _reader: asyncio.StreamReader, writer: asyncio.StreamWriter
     ) -> None:
-        message = b"healthy"
+        message = b"ok"
 
         if (
-            self.client.latency > self.bot_max_latency  # Latency too high
-            or self.client.user is None  # Not logged in
-            or not self.client.is_ready()  # Client’s internal cache not ready
-            or self.client.is_closed()  # The websocket connection is closed
+            self.client.user is None
+            or not self.client.is_ready()
+            or self.client.is_closed()
         ):
-            message = b"unhealthy"
+            message = b"failed"
 
         writer.write(message)
         writer.close()
 
 
-def start(
-    client: discord.client, port: int = 8080, bot_max_latency: float = 0.5
-) -> asyncio.base_events.Server:
-    host = "127.0.0.1"
-    ctx = _ClientContext(client, bot_max_latency)
-    return client.loop.run_until_complete(
-        asyncio.start_server(ctx.handle_socket_client, host, port)
+def start(client: Client, port: int = 8080) -> asyncio.base_events.Server:
+    ctx = _ClientContext(client)
+    return asyncio.run(
+        asyncio.start_server(ctx.handle_socket_client, "127.0.0.1", port)
     )
