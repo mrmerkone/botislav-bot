@@ -1,42 +1,16 @@
-name: CI/CD
-
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
+name: Fly Deploy
+on: [push]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Yandex Cloud login
-        uses: yc-actions/yc-cr-login@v0.1-alpha
-        with:
-            yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-
-      - name: Build, tag, and push image to Yandex Cloud Container Registry
-        env:
-            REGISTRY_ID: ${{ secrets.YC_REGISTRY_ID }}
-        run: |
-          docker build -t cr.yandex/$REGISTRY_ID/botislav:latest .
-          docker push cr.yandex/$REGISTRY_ID/botislav:latest
-
-  deploy-container:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy Serverless Container to Yandex Cloud
-        uses: yc-actions/yc-sls-container-deploy@v1.0.1
-        with:
-          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          folder-id: ${{ secrets.YC_FOLDER_ID }}
-          container-name: botislav-bot
-          revision-cores: 1
-          revision-memory: 128Mb
-          revision-core-fraction: 5
-          revision-image-url: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/botislav:latest
-          revision-service-account-id: ${{ secrets.YC_SERVICE_ACCOUNT_ID }}
-          revision-env: DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
+  deploy:
+      name: Deploy app
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - uses: superfly/flyctl-actions/setup-flyctl@master
+        - run: |
+            flyctl secrets set DISCORD_TOKEN=$DISCORD_TOKEN
+            flyctl deploy --remote-only
+          env:
+            FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+            DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
