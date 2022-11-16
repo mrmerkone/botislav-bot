@@ -1,7 +1,7 @@
 from discord import Client, Message, DMChannel, Intents
 
-from botislav.commands import ActionManager
-from botislav.common import Context
+from botislav.actions import ActionManager
+from botislav.context import Context
 
 
 class BotislavClient(Client):
