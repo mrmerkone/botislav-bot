@@ -1,10 +1,10 @@
 import pytest
 
-from botislav.actions import Action, ActionManager, get_action_manager
+from botislav.phrases import Action, PhraseMetaExtractor, get_action_manager
 
 
 @pytest.fixture(scope="module")
-def action_manager() -> ActionManager:
+def action_manager() -> PhraseMetaExtractor:
     return get_action_manager()
 
 
@@ -24,6 +24,6 @@ def action_manager() -> ActionManager:
     ),
 )
 def test_action_manager(
-    action_manager: ActionManager, phrase: str, expected_action: Action
+    action_manager: PhraseMetaExtractor, phrase: str, expected_action: Action
 ):
     assert action_manager.get_action(phrase) == expected_action

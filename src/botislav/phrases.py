@@ -7,12 +7,16 @@ from lark.lexer import Token
 from lark.exceptions import UnexpectedInput
 from lark.visitors import Transformer, TransformerChain
 
-from botislav.context import Action
 
 _logger = getLogger(__name__)
 
 
-__all__ = ["Action", "ActionManager", "ACTIONS_GRAMMAR", "get_action_manager"]
+__all__ = [
+    "PhraseMeta",
+    "PhraseMetaExtractor",
+    "ACTIONS_GRAMMAR",
+    "get_phrase_meta_extractor",
+]
 
 
 ACTIONS_GRAMMAR = """
@@ -39,26 +43,25 @@ DOTA: ("dota" | "dotes" | "дота" | "доту" | "дока" | "доку") " "
 
 
 @dataclass
-class Action:
-    id: str
+class PhraseMeta:
+    handler_id: Optional[str] = None
     parameters: Dict[str, Any] = attrib(factory=dict)
 
 
 @dataclass(slots=True)
-class ActionManager:
+class PhraseMetaExtractor:
     parser: Lark
     transformer: Union[Transformer, TransformerChain]
 
-    def get_action(self, phrase: str) -> Optional[Action]:
+    def extract(self, phrase: str) -> PhraseMeta:
         try:
             tree = self.parser.parse(phrase)
             node = self.transformer.transform(tree)
-            action = node.children[0]
-            _logger.info(f"Matched {action.__class__.__name__}")
-            return action
+            meta = node.children[0]
+            _logger.info(f"Matched {meta}")
+            return meta
         except UnexpectedInput:
-            _logger.info("No matched action")
-            return None
+            return PhraseMeta(handler_id="silence")
 
 
 class LastMatchTransformer(Transformer):
@@ -78,16 +81,16 @@ class LastMatchTransformer(Transformer):
     # noinspection PyMethodMayBeStatic
     def lastmatch(self, tokens):
         game = next(filter(lambda i: not isinstance(i, Token), tokens), "DOTA")
-        return Action(id="lastmatch", parameters={"game": game})
+        return PhraseMeta(handler_id="lastmatch", parameters={"game": game})
 
 
 class GreetingTransformer(Transformer):
     # noinspection PyMethodMayBeStatic
     def greeting(self, _):
-        return Action(id="greeting")
+        return PhraseMeta(handler_id="greeting")
 
 
-def get_action_manager() -> ActionManager:
+def get_phrase_meta_extractor() -> PhraseMetaExtractor:
     parser = Lark(grammar=ACTIONS_GRAMMAR, start="action")
     transformer = GreetingTransformer() * LastMatchTransformer()
-    return ActionManager(parser=parser, transformer=transformer)
+    return PhraseMetaExtractor(parser=parser, transformer=transformer)

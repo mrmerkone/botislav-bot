@@ -4,6 +4,10 @@ kill_timeout = 5
 processes = []
 
 [env]
+  APP_ENV = "production"
+  LOG_LEVEL = "info"
+  LOG_CHANNEL = "stdout"
+  LOG_STDERR_FORMATTER = "Monolog"
 
 [experimental]
   allowed_public_ports = []
