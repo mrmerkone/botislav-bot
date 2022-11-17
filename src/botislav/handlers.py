@@ -3,7 +3,13 @@ from typing import Dict
 
 from botislav.context import Context
 
-__all__ = ["Handler", "GreetingHandler", "LastMatchHandler", "SilenceHandler", "get_handlers"]
+__all__ = [
+    "Handler",
+    "GreetingHandler",
+    "LastMatchHandler",
+    "SilenceHandler",
+    "get_handlers",
+]
 
 
 class Handler(metaclass=ABCMeta):
@@ -14,19 +20,19 @@ class Handler(metaclass=ABCMeta):
 
 class GreetingHandler(Handler):
     async def handle(self, context: Context) -> None:
-        await context.message.reply("Здарова")
+        await context.discord_message.reply("Здарова")
 
 
 class LastMatchHandler(Handler):
     async def handle(self, context: Context) -> None:
-        await context.message.reply(
+        await context.discord_message.reply(
             f"Ты что, играешь в {context.phrase_meta.parameters['game']}"
         )
 
 
 class SilenceHandler(Handler):
     async def handle(self, context: Context) -> None:
-        await context.message.add_reaction(context.normalize_emoji("clueless"))
+        await context.discord_message.add_reaction(context.resolve_emoji("clueless"))
 
 
 def get_handlers() -> Dict[str, Handler]:

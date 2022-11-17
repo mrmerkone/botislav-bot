@@ -23,21 +23,14 @@ class Cache:
 @dataclass(slots=True)
 class Context:
     cache: Cache
-    client: discord.Client
-    message: discord.Message
+    discord_client: discord.Client
+    discord_message: discord.Message
     phrase_meta: PhraseMeta
 
-    def normalize_emoji(self, emoji: str) -> str:
-        if emoji.startswith("<") and emoji.endswith(">"):
-            # already normalized
-            return emoji
-
-        emoji = emoji.strip(" \n\r\t:")
-
-        found: discord.Emoji = discord.utils.get(self.client.emojis, name=emoji)
-        if found:
-            return str(found)
-
+    def resolve_emoji(self, emoji: str) -> str:
+        emoji = emoji.strip(" \n\r\t:<>")
+        if resolved := discord.utils.get(self.discord_client.emojis, name=emoji):
+            return str(resolved)
         return f":{emoji}:"
 
 
@@ -55,7 +48,10 @@ class ContextManager:
         else:
             cache = Cache()
         context = Context(
-            cache=cache, message=message, phrase_meta=phrase_meta, client=client
+            discord_client=client,
+            discord_message=message,
+            phrase_meta=phrase_meta,
+            cache=cache,
         )
         yield context
         self._cache.set(key, ctor.dump(context.cache))
