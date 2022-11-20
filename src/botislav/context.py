@@ -47,18 +47,22 @@ class ContextManager:
             cache = ctor.load(Cache, raw_cache)
         else:
             cache = Cache()
+
         context = Context(
             discord_client=client,
             discord_message=message,
             phrase_meta=phrase_meta,
             cache=cache,
         )
+
         yield context
+
+        cache.last_phrase = message.content
         self._cache.set(key, ctor.dump(context.cache))
 
 
 def get_context_manager(
-    location: str = "cache.db", auto_dump: bool = True
+    cache_location: str = "cache.db", cache_auto_dump: bool = True
 ) -> ContextManager:
-    cache = pickledb.load(location=location, auto_dump=auto_dump)
+    cache = pickledb.load(location=cache_location, auto_dump=cache_auto_dump)
     return ContextManager(cache=cache)

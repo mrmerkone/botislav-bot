@@ -16,3 +16,7 @@ processes = []
 [[services]]
   processes = ["app"]
   protocol = "tcp"
+
+[mounts]
+source="botislav_cache"
+destination="/usr/src/app/cache"

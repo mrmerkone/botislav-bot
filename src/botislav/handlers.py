@@ -32,8 +32,7 @@ class LastMatchHandler(Handler):
 
 class SilenceHandler(Handler):
     async def handle(self, context: Context) -> None:
-        await context.discord_message.add_reaction(context.resolve_emoji("clueless"))
-
+        pass
 
 def get_handlers() -> Dict[str, Handler]:
     return {
