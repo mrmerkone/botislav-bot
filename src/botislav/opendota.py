@@ -21,6 +21,7 @@ __all__ = [
     "Player",
     "DotaItem",
     "DotaItemAttrib",
+    "PlayerRecentMatch",
     "get_items",
     "get_item_ids",
     "get_heroes",

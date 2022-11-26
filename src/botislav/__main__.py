@@ -3,10 +3,13 @@ import sys
 import logging
 import asyncio
 
+import pickledb
+
 from botislav.client import BotislavClient
+from botislav.dialog import DialogManager
+from botislav.intents import get_intent_classifier
 from botislav.handlers import get_handlers
-from botislav.context import get_context_manager
-from botislav.phrases import get_phrase_meta_extractor
+from botislav.context import BotContextManager
 
 _logger = logging.getLogger(__name__)
 
@@ -15,11 +18,17 @@ async def main():
     logging.basicConfig(
         stream=sys.stdout, format="%(name)s: %(message)s", level=logging.INFO
     )
+
     client = BotislavClient(
-        handlers=get_handlers(),
-        context_manager=get_context_manager(cache_location="./cache/cache.db"),
-        phrase_meta_extractor=get_phrase_meta_extractor(),
+        dialog_manager=DialogManager(
+            intent_classifier=get_intent_classifier(),
+            handlers=get_handlers(),
+            context_manager=BotContextManager(
+                cache=pickledb.load(location="./cache/cache.db", auto_dump=True)
+            )
+        )
     )
+
     await client.start(token=os.getenv("DISCORD_TOKEN"))
 
 

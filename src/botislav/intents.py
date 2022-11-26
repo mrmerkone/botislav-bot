@@ -1,9 +1,8 @@
 from logging import getLogger
-from typing import Union, Optional, Dict, Any
+from typing import Union, Optional, Any
 
-from attr import dataclass, attrib
+from attr import dataclass
 from lark.lark import Lark
-from lark.lexer import Token
 from lark.exceptions import UnexpectedInput
 from lark.visitors import Transformer, TransformerChain
 
@@ -12,15 +11,15 @@ _logger = getLogger(__name__)
 
 
 __all__ = [
-    "PhraseMeta",
-    "PhraseMetaExtractor",
+    "IntentMeta",
+    "IntentClassifier",
     "ACTIONS_GRAMMAR",
-    "get_phrase_meta_extractor",
+    "get_intent_classifier",
 ]
 
 
 ACTIONS_GRAMMAR = """
-action: lastmatch | greeting
+intent: dota_lastmatch | pubg_lastmatch | greeting
 
 // -- greeting --
 
@@ -29,7 +28,8 @@ GREETING: "прив" "ет"? | "здаров" "а"? | "хай" | "hi" | "hello"
 
 // -- lastmatch --
 
-lastmatch: LASTMATCH ("в"|"in")? game | LASTMATCH
+dota_lastmatch: LASTMATCH ("в"|"in")? DOTA | LASTMATCH
+pubg_lastmatch: LASTMATCH ("в"|"in")? PUBG
 
 LASTMATCH: "лм" | ("последняя "? "игра") | ("ласт "? "катка") | "!"? "last" " "? "match" | "!"? "lm"
 
@@ -43,17 +43,16 @@ DOTA: ("dota" | "dotes" | "дота" | "доту" | "дока" | "доку") " "
 
 
 @dataclass
-class PhraseMeta:
+class IntentMeta:
     handler_id: Optional[str] = None
-    parameters: Dict[str, Any] = attrib(factory=dict)
 
 
 @dataclass(slots=True)
-class PhraseMetaExtractor:
+class IntentClassifier:
     parser: Lark
     transformer: Union[Transformer, TransformerChain]
 
-    def extract(self, phrase: str) -> PhraseMeta:
+    def get_intent(self, phrase: str) -> IntentMeta:
         try:
             tree = self.parser.parse(phrase)
             node = self.transformer.transform(tree)
@@ -61,36 +60,26 @@ class PhraseMetaExtractor:
             _logger.info(f"Matched {meta}")
             return meta
         except UnexpectedInput:
-            return PhraseMeta(handler_id="silence")
+            return IntentMeta(handler_id="silence")
 
 
-class LastMatchTransformer(Transformer):
+class LastMatchTransformer(Transformer[Any, IntentMeta]):
+    # noinspection PyMethodMayBeStatic
+    def dota_lastmatch(self, _) -> IntentMeta:
+        return IntentMeta(handler_id="dota_lastmatch")
 
     # noinspection PyMethodMayBeStatic
-    def PUBG(self, _):
-        return "PUBG"
+    def pubg_lastmatch(self, _) -> IntentMeta:
+        return IntentMeta(handler_id="pubg_lastmatch")
 
+
+class GreetingTransformer(Transformer[Any, IntentMeta]):
     # noinspection PyMethodMayBeStatic
-    def DOTA(self, _):
-        return "DOTA"
-
-    # noinspection PyMethodMayBeStatic
-    def game(self, token):
-        return token[0]
-
-    # noinspection PyMethodMayBeStatic
-    def lastmatch(self, tokens):
-        game = next(filter(lambda i: not isinstance(i, Token), tokens), "DOTA")
-        return PhraseMeta(handler_id="lastmatch", parameters={"game": game})
+    def greeting(self, _) -> IntentMeta:
+        return IntentMeta(handler_id="greeting")
 
 
-class GreetingTransformer(Transformer):
-    # noinspection PyMethodMayBeStatic
-    def greeting(self, _):
-        return PhraseMeta(handler_id="greeting")
-
-
-def get_phrase_meta_extractor() -> PhraseMetaExtractor:
-    parser = Lark(grammar=ACTIONS_GRAMMAR, start="action")
+def get_intent_classifier() -> IntentClassifier:
+    parser = Lark(grammar=ACTIONS_GRAMMAR, start="intent")
     transformer = GreetingTransformer() * LastMatchTransformer()
-    return PhraseMetaExtractor(parser=parser, transformer=transformer)
+    return IntentClassifier(parser=parser, transformer=transformer)
