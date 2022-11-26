@@ -10,7 +10,7 @@ __all__ = [
     "get_handlers",
 ]
 
-Handler = Callable[[BotContext], Awaitable[bool]]
+Handler = Callable[[BotContext], Awaitable[None]]
 
 
 async def pubg_lastmatch(context: BotContext) -> None:

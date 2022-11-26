@@ -44,7 +44,7 @@ DOTA: ("dota" | "dotes" | "дота" | "доту" | "дока" | "доку") " "
 
 @dataclass
 class IntentMeta:
-    handler_id: Optional[str] = None
+    handler_id: str
 
 
 @dataclass(slots=True)
@@ -63,7 +63,7 @@ class IntentClassifier:
             return IntentMeta(handler_id="silence")
 
 
-class LastMatchTransformer(Transformer[Any, IntentMeta]):
+class LastMatchTransformer(Transformer):
     # noinspection PyMethodMayBeStatic
     def dota_lastmatch(self, _) -> IntentMeta:
         return IntentMeta(handler_id="dota_lastmatch")
@@ -73,7 +73,7 @@ class LastMatchTransformer(Transformer[Any, IntentMeta]):
         return IntentMeta(handler_id="pubg_lastmatch")
 
 
-class GreetingTransformer(Transformer[Any, IntentMeta]):
+class GreetingTransformer(Transformer):
     # noinspection PyMethodMayBeStatic
     def greeting(self, _) -> IntentMeta:
         return IntentMeta(handler_id="greeting")
