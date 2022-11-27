@@ -22,8 +22,7 @@ class Cache:
 
 @dataclass(slots=True)
 class BotContext:
-    discord_message: discord.Message
-
+    _discord_message: discord.Message
     _cache: pickledb.PickleDB
     _waiter: Optional[asyncio.Event] = None
 
@@ -36,8 +35,11 @@ class BotContext:
             return ctor.load(Cache, raw_cache)
         return Cache()
 
-    def set_cache(self, cache: Cache):
+    def set_cache(self, cache: Cache) -> None:
         self._cache.set(self.key, ctor.dump(cache))
+
+    async def reply(self, text: str) -> None:
+        await self.discord_message.reply(text)
 
     async def wait_for_reply(self, seconds: float = 5) -> bool:
         self._waiter = asyncio.Event()

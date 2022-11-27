@@ -18,19 +18,19 @@ async def pubg_lastmatch(context: BotContext) -> None:
 
 
 async def dota_lastmatch(context: BotContext, opendota_api: OpenDotaApi) -> None:
-    await context.discord_message.reply("Ты что играешь в ДОТУ ???")
+    await context.reply("Ты что играешь в ДОТУ ???")
 
     replied = await context.wait_for_reply(10)
 
     if replied:
-        await context.discord_message.reply("красава")
+        await context.reply("красава")
 
     else:
-        await context.discord_message.reply("че молчишь")
+        await context.reply("че молчишь")
 
 
 async def greeting(context: BotContext) -> None:
-    await context.discord_message.reply("Здарова")
+    await context.reply("Здарова")
 
 
 async def silence(_context: BotContext) -> None:

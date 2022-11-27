@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Union, Optional, Any
+from typing import Union
 
 from attr import dataclass
 from lark.lark import Lark
