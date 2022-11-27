@@ -22,7 +22,7 @@ class BotContext:
     _message: discord.Message
     _waiter: Optional[asyncio.Event] = None
 
-    @cached_property
+    @property
     def key(self) -> str:
         return str(self._message.author.id)
 
