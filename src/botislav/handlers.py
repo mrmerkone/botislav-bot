@@ -14,7 +14,7 @@ Handler = Callable[[BotContext], Awaitable[None]]
 
 
 async def pubg_lastmatch(context: BotContext) -> None:
-    await context.discord_message.reply("Ты что играешь в БАБАДЖИ ???")
+    await context.reply("Ты что играешь в БАБАДЖИ ???")
 
 
 async def dota_lastmatch(context: BotContext, opendota_api: OpenDotaApi) -> None:

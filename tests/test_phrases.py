@@ -4,7 +4,7 @@ from botislav.intents import IntentMeta, IntentClassifier, get_intent_classifier
 
 
 @pytest.fixture(scope="module")
-def meta_extractor() -> IntentClassifier:
+def intent_classifier() -> IntentClassifier:
     return get_intent_classifier()
 
 
@@ -20,11 +20,13 @@ def meta_extractor() -> IntentClassifier:
         ("ласт катка в доту", IntentMeta("dota_lastmatch")),
         ("last match dota ", IntentMeta("dota_lastmatch")),
         ("lm", IntentMeta("dota_lastmatch")),
+        ("!lm", IntentMeta("dota_lastmatch")),
         ("ласт катка в pubg", IntentMeta("pubg_lastmatch")),
         ("lm baba gee", IntentMeta("pubg_lastmatch")),
+        ("lastmatch", IntentMeta("dota_lastmatch")),
     ),
 )
-def test_action_manager(
-    meta_extractor: IntentClassifier, phrase: str, expected_meta: IntentMeta
+def test_intent_classifier(
+    intent_classifier: IntentClassifier, phrase: str, expected_meta: IntentMeta
 ):
-    assert meta_extractor.get_intent(phrase) == expected_meta
+    assert intent_classifier.get_intent(phrase) == expected_meta

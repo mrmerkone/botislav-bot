@@ -25,7 +25,7 @@ async def main():
             handlers=get_handlers(),
             context_manager=BotContextManager(
                 cache=pickledb.load(location="./cache/cache.db", auto_dump=True)
-            )
+            ),
         )
     )
 

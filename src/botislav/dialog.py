@@ -41,12 +41,9 @@ class DialogManager:
             self.active_dialogs[user_key].resume(message)
             return
 
+        context = self.context_manager.get_context_from(message)
         intent = self.intent_classifier.get_intent(message.content)
         handler = self.handlers[intent.handler_id]
-        context = self.context_manager.get_context_from(message)
-        dialog = Dialog(
-            context=context,
-            task=asyncio.create_task(handler(context))
-        )
+        task = asyncio.create_task(handler(context))
 
-        self.active_dialogs[user_key] = dialog
+        self.active_dialogs[user_key] = Dialog(task, context)

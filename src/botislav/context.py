@@ -28,7 +28,7 @@ class BotContext:
 
     @cached_property
     def key(self) -> str:
-        return str(self.discord_message.author.id)
+        return str(self._discord_message.author.id)
 
     def get_cache(self) -> Cache:
         if raw_cache := self._cache.get(self.key):
@@ -39,7 +39,7 @@ class BotContext:
         self._cache.set(self.key, ctor.dump(cache))
 
     async def reply(self, text: str) -> None:
-        await self.discord_message.reply(text)
+        await self._discord_message.reply(text)
 
     async def wait_for_reply(self, seconds: float = 5) -> bool:
         self._waiter = asyncio.Event()
@@ -50,8 +50,9 @@ class BotContext:
         return True
 
     def resume(self, discord_message: discord.Message):
-        assert self._waiter is not None
-        self.discord_message = discord_message
+        if self._waiter is None:
+            raise RuntimeError("Can not resume current context")
+        self._discord_message = discord_message
         self._waiter.set()
 
 
@@ -59,9 +60,7 @@ class BotContext:
 class BotContextManager:
     _cache: pickledb.PickleDB
 
-    def get_context_from(
-        self, message: discord.Message
-    ) -> BotContext:
+    def get_context_from(self, message: discord.Message) -> BotContext:
         return BotContext(
             discord_message=message,
             cache=self._cache,
