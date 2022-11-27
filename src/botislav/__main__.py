@@ -5,13 +5,11 @@ import asyncio
 
 import pickledb
 
-from botislav.client import BotislavClient
 from botislav.dialog import DialogManager
+from botislav.client import BotislavClient
+from botislav.context import BotContextManager
 from botislav.intents import get_intent_classifier
 from botislav.handlers import get_handlers
-from botislav.context import BotContextManager
-
-_logger = logging.getLogger(__name__)
 
 
 async def main():

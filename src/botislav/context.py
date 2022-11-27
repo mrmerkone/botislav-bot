@@ -1,15 +1,11 @@
 import asyncio
 from typing import Optional
-from logging import getLogger
 from functools import cached_property
 
 import ctor
 import discord
 import pickledb
 from attr import dataclass
-
-
-_logger = getLogger(__name__)
 
 __all__ = ["Cache", "BotContext", "BotContextManager"]
 
@@ -22,13 +18,13 @@ class Cache:
 
 @dataclass(slots=True)
 class BotContext:
-    _discord_message: discord.Message
     _cache: pickledb.PickleDB
+    _message: discord.Message
     _waiter: Optional[asyncio.Event] = None
 
     @cached_property
     def key(self) -> str:
-        return str(self._discord_message.author.id)
+        return str(self._message.author.id)
 
     def get_cache(self) -> Cache:
         if raw_cache := self._cache.get(self.key):
@@ -38,10 +34,10 @@ class BotContext:
     def set_cache(self, cache: Cache) -> None:
         self._cache.set(self.key, ctor.dump(cache))
 
-    async def reply(self, text: str) -> None:
-        await self._discord_message.reply(text)
+    async def reply_to_user(self, text: str) -> None:
+        await self._message.reply(text)
 
-    async def wait_for_reply(self, seconds: float = 5) -> bool:
+    async def wait_for_user_reply(self, seconds: float = 5) -> bool:
         self._waiter = asyncio.Event()
         try:
             await asyncio.wait_for(self._waiter.wait(), timeout=seconds)
@@ -49,10 +45,10 @@ class BotContext:
             return False
         return True
 
-    def resume(self, discord_message: discord.Message):
+    def set_user_reply(self, message: discord.Message) -> None:
         if self._waiter is None:
-            raise RuntimeError("Can not resume current context")
-        self._discord_message = discord_message
+            raise RuntimeError("Current context is not waiting for reply")
+        self._message = message
         self._waiter.set()
 
 
@@ -62,6 +58,6 @@ class BotContextManager:
 
     def get_context_from(self, message: discord.Message) -> BotContext:
         return BotContext(
-            discord_message=message,
+            message=message,
             cache=self._cache,
         )

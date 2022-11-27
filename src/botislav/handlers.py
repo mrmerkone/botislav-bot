@@ -1,4 +1,3 @@
-import asyncio
 from functools import partial
 from typing import Dict, Callable, Awaitable
 
@@ -14,23 +13,23 @@ Handler = Callable[[BotContext], Awaitable[None]]
 
 
 async def pubg_lastmatch(context: BotContext) -> None:
-    await context.reply("Ты что играешь в БАБАДЖИ ???")
+    await context.reply_to_user("Ты что играешь в БАБАДЖИ ???")
 
 
 async def dota_lastmatch(context: BotContext, opendota_api: OpenDotaApi) -> None:
-    await context.reply("Ты что играешь в ДОТУ ???")
+    await context.reply_to_user("Ты что играешь в ДОТУ ???")
 
-    replied = await context.wait_for_reply(10)
+    replied = await context.wait_for_user_reply(10)
 
     if replied:
-        await context.reply("красава")
+        await context.reply_to_user("красава")
 
     else:
-        await context.reply("че молчишь")
+        await context.reply_to_user("че молчишь")
 
 
 async def greeting(context: BotContext) -> None:
-    await context.reply("Здарова")
+    await context.reply_to_user("Здарова")
 
 
 async def silence(_context: BotContext) -> None:

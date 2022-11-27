@@ -348,22 +348,3 @@ class OpenDotaApi:
     ) -> List[PlayerRecentMatch]:
         data = await get_json(f"{self.base_url}/players/{account_id}/recentMatches")
         return ctor.load(List[PlayerRecentMatch], data)
-
-
-async def main() -> None:
-    match = await OpenDotaApi().get_match(6862778480)
-    heroes = await get_heroes()
-
-    for player in match.players:
-        print(
-            player.win,
-            player.personaname,
-            heroes[str(player.hero_id)].localized_name,
-            f"{player.kills}/{player.deaths}/{player.assists}",
-        )
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    asyncio.run(main())

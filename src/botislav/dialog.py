@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from typing import Dict
 
 import discord
@@ -8,8 +9,10 @@ from botislav.context import BotContext, BotContextManager
 from botislav.handlers import Handler
 from botislav.intents import IntentClassifier
 
+_logger = logging.getLogger(__name__)
 
-@dataclass(slots=True)
+
+@dataclass(frozen=True, slots=True)
 class Dialog:
     task: asyncio.Task
     context: BotContext
@@ -17,8 +20,8 @@ class Dialog:
     def is_active(self) -> bool:
         return not self.task.done()
 
-    def resume(self, discord_message: discord.Message):
-        self.context.resume(discord_message)
+    def resume(self, discord_message: discord.Message) -> None:
+        self.context.set_user_reply(discord_message)
 
 
 @dataclass(slots=True)
@@ -28,22 +31,22 @@ class DialogManager:
     handlers: Dict[str, Handler] = attrib(factory=dict)
     active_dialogs: Dict[str, Dialog] = attrib(factory=dict)
 
-    async def handle(self, message: discord.Message):
+    async def handle(self, message: discord.Message) -> None:
         self.active_dialogs = {
-            user_key: dialog
-            for user_key, dialog in self.active_dialogs.items()
+            key: dialog
+            for key, dialog in self.active_dialogs.items()
             if dialog.is_active()
         }
 
-        user_key = str(message.author.id)
+        context = self.context_manager.get_context_from(message)
 
-        if user_key in self.active_dialogs:
-            self.active_dialogs[user_key].resume(message)
+        if context.key in self.active_dialogs:
+            _logger.info(f"Resuming dialog for {context.key}")
+            self.active_dialogs[context.key].resume(message)
             return
 
-        context = self.context_manager.get_context_from(message)
+        _logger.info(f"Starting new dialog for {context.key}")
         intent = self.intent_classifier.get_intent(message.content)
         handler = self.handlers[intent.handler_id]
         task = asyncio.create_task(handler(context))
-
-        self.active_dialogs[user_key] = Dialog(task, context)
+        self.active_dialogs[context.key] = Dialog(task, context)

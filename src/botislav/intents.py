@@ -13,12 +13,12 @@ _logger = getLogger(__name__)
 __all__ = [
     "IntentMeta",
     "IntentClassifier",
-    "ACTIONS_GRAMMAR",
+    "INTENTS_GRAMMAR",
     "get_intent_classifier",
 ]
 
 
-ACTIONS_GRAMMAR = """
+INTENTS_GRAMMAR = """
 intent: dota_lastmatch | pubg_lastmatch | greeting
 
 // -- greeting --
@@ -42,12 +42,12 @@ DOTA: ("dota" | "dotes" | "дота" | "доту" | "дока" | "доку") " "
 """
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class IntentMeta:
     handler_id: str
 
 
-@dataclass(slots=True)
+@dataclass(frozen=True, slots=True)
 class IntentClassifier:
     parser: Lark
     transformer: Union[Transformer, TransformerChain]
@@ -80,6 +80,6 @@ class GreetingTransformer(Transformer):
 
 
 def get_intent_classifier() -> IntentClassifier:
-    parser = Lark(grammar=ACTIONS_GRAMMAR, start="intent")
+    parser = Lark(grammar=INTENTS_GRAMMAR, start="intent")
     transformer = GreetingTransformer() * LastMatchTransformer()
     return IntentClassifier(parser=parser, transformer=transformer)
