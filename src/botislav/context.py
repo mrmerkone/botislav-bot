@@ -1,6 +1,5 @@
 import asyncio
 from typing import Optional
-from functools import cached_property
 
 import ctor
 import discord
@@ -13,7 +12,7 @@ __all__ = ["Cache", "BotContext", "BotContextManager"]
 @dataclass(slots=True)
 class Cache:
     steam_id: Optional[str] = None
-    opendota_id: Optional[str] = None
+    opendota_id: Optional[int] = None
 
 
 @dataclass(slots=True)
@@ -25,6 +24,10 @@ class BotContext:
     @property
     def key(self) -> str:
         return str(self._message.author.id)
+
+    @property
+    def user_text(self) -> str:
+        return self._message.content
 
     def get_cache(self) -> Cache:
         if raw_cache := self._cache.get(self.key):

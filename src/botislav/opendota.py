@@ -14,6 +14,7 @@ from typing import (
 
 import ctor
 import aiohttp
+from functools import cache
 from attr import dataclass
 
 __all__ = [
@@ -26,7 +27,8 @@ __all__ = [
     "get_item_ids",
     "get_heroes",
     "translate_dota_rank",
-    "OpenDotaApi",
+    "get_player_recent_matches",
+    "get_match",
 ]
 
 DOTA_RANK_TIERS = ["I", "II", "III", "IV", "V"]
@@ -220,6 +222,10 @@ class DotaMatch:
     series_id: Optional[int] = None
     series_type: Optional[int] = None
 
+    @property
+    def url(self) -> str:
+        return f"https://www.opendota.com/matches/{self.match_id}"
+
 
 @dataclass(slots=True, frozen=True)
 class PlayerRecentMatch:
@@ -335,16 +341,16 @@ async def get_json(url: str) -> Any:
             return json.loads(data)
 
 
-@dataclass(slots=True, frozen=True)
-class OpenDotaApi:
-    base_url: str = "https://api.opendota.com/api"
+@CacheWithLifetime
+async def get_match(match_id: Union[str, int]) -> DotaMatch:
+    data = await get_json(f"https://api.opendota.com/api/matches/{match_id}")
+    return ctor.load(DotaMatch, data)
 
-    async def get_match(self, match_id: Union[str, int]) -> DotaMatch:
-        data = await get_json(f"{self.base_url}/matches/{match_id}")
-        return ctor.load(DotaMatch, data)
 
-    async def get_player_recent_matches(
-        self, account_id: Union[str, int]
-    ) -> List[PlayerRecentMatch]:
-        data = await get_json(f"{self.base_url}/players/{account_id}/recentMatches")
-        return ctor.load(List[PlayerRecentMatch], data)
+async def get_player_recent_matches(
+    account_id: Union[str, int], limit: int = 10
+) -> List[PlayerRecentMatch]:
+    data = await get_json(
+        f"https://api.opendota.com/api/players/{account_id}/recentMatches?limit={limit}"
+    )
+    return ctor.load(List[PlayerRecentMatch], data)
