@@ -48,7 +48,9 @@ async def dota_lastmatch(context: BotContext) -> None:
 
     if recent_match := next(iter(recent_matches), None):
         match = await get_match(recent_match.match_id)
-        player = next(filter(lambda p: p.account_id == user_cache.opendota_id, match.players))
+        player = next(
+            filter(lambda p: p.account_id == user_cache.opendota_id, match.players)
+        )
         hero = (await get_heroes())[str(player.hero_id)]
         await context.reply_to_user(
             f"Ты {'выйграл' if player.win else 'проиграл'} на {hero.localized_name} со счетом "
