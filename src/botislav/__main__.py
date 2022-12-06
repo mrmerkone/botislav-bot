@@ -7,7 +7,7 @@ import pickledb
 
 from botislav.dialog import DialogManager
 from botislav.client import BotislavClient
-from botislav.context import BotContextManager
+from botislav.context import ContextManager
 from botislav.intents import get_intent_classifier
 from botislav.handlers import get_handlers
 
@@ -21,7 +21,7 @@ async def main():
         dialog_manager=DialogManager(
             intent_classifier=get_intent_classifier(),
             handlers=get_handlers(),
-            context_manager=BotContextManager(
+            context_manager=ContextManager(
                 cache=pickledb.load(location="./cache/cache.db", auto_dump=True)
             ),
         )

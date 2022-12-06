@@ -112,17 +112,9 @@ class PermanentBuffState:
 class Player:
     match_id: int
     player_slot: int
-    account_id: Optional[int]
     assists: int
-    buyback_log: Optional[List[PlayerBuybackEvent]]
-    camps_stacked: Optional[int]
-    creeps_stacked: Optional[int]
-    damage: Optional[float]
-    damage_taken: Optional[float]
     deaths: int
     denies: int
-    dn_t: Optional[List[int]]
-    firstblood_claimed: Optional[int]
     gold: int
     gold_per_min: int
     gold_spent: int
@@ -140,18 +132,7 @@ class Player:
     last_hits: int
     leaver_status: int
     level: int
-    net_worth: Optional[int]
-    obs_placed: Optional[int]
-    permanent_buffs: Optional[List[PermanentBuffState]]
-    pred_vict: Optional[bool]
-    randomed: Optional[bool]
-    roshans_killed: Optional[int]
-    rune_pickups: Optional[int]
-    sen_placed: Optional[int]
-    stuns: Optional[float]
-    teamfight_participation: Optional[float]
     tower_damage: int
-    towers_killed: Optional[int]
     xp_per_min: int
     radiant_win: bool
     start_time: int
@@ -167,6 +148,22 @@ class Player:
     total_xp: int
     abandons: int
     rank_tier: Optional[int]
+    account_id: Optional[int] = None
+    camps_stacked: Optional[int] = None
+    creeps_stacked: Optional[int] = None
+    damage: Optional[float] = None
+    damage_taken: Optional[float] = None
+    dn_t: Optional[List[int]] = None
+    firstblood_claimed: Optional[int] = None
+    net_worth: Optional[int] = None
+    obs_placed: Optional[int] = None
+    pred_vict: Optional[bool] = None
+    randomed: Optional[bool] = None
+    roshans_killed: Optional[int] = None
+    rune_pickups: Optional[int] = None
+    sen_placed: Optional[int] = None
+    stuns: Optional[float] = None
+    towers_killed: Optional[int] = None
     observer_uses: Optional[int] = None
     sentry_uses: Optional[int] = None
     item_win: Optional[Dict[str, int]] = None
@@ -181,6 +178,7 @@ class Player:
     purchase_ward_sentry: Optional[int] = None
     purchase_tpscroll: Optional[int] = None
     pings: Optional[int] = None
+    teamfight_participation: Optional[float] = None
 
 
 @dataclass(slots=True, frozen=True, repr=False)
@@ -188,10 +186,8 @@ class DotaMatch:
     match_id: int
     barracks_status_dire: int
     barracks_status_radiant: int
-    chat: Optional[List[ChatEvent]]
     cluster: int
     dire_score: int
-    dire_team_id: Optional[int]
     duration: int
     engine: int
     first_blood_time: int
@@ -202,18 +198,20 @@ class DotaMatch:
     match_seq_num: int
     negative_votes: int
     positive_votes: int
-    radiant_gold_adv: Optional[List[int]]
     radiant_score: int
-    radiant_team_id: Optional[int]
     radiant_win: bool
-    radiant_xp_adv: Optional[List[int]]
-    skill: Optional[int]
     start_time: int
     tower_status_dire: int
     tower_status_radiant: int
-    version: Optional[int]
     players: List[Player]
     patch: int
+    skill: Optional[int] = None
+    version: Optional[int] = None
+    dire_team_id: Optional[int] = None
+    radiant_gold_adv: Optional[List[int]] = None
+    radiant_team_id: Optional[int] = None
+    radiant_xp_adv: Optional[List[int]] = None
+    chat: Optional[List[ChatEvent]] = None
     replay_url: Optional[str] = None
     region: Optional[int] = None
     throw: Optional[int] = None
@@ -226,6 +224,9 @@ class DotaMatch:
     def url(self) -> str:
         return f"https://www.opendota.com/matches/{self.match_id}"
 
+    def find_player(self, account_id: int) -> Optional[Player]:
+        return next(filter(lambda p: p.account_id == account_id, self.players), None)
+
 
 @dataclass(slots=True, frozen=True)
 class PlayerRecentMatch:
@@ -237,23 +238,23 @@ class PlayerRecentMatch:
     lobby_type: int
     hero_id: int
     start_time: int
-    version: Optional[int]
     kills: int
     deaths: int
     assists: int
-    skill: Optional[int]
     xp_per_min: int
     gold_per_min: int
     hero_damage: int
     tower_damage: int
     hero_healing: int
     last_hits: int
-    lane: Optional[int]
-    lane_role: Optional[int]
-    is_roaming: Optional[bool]
     cluster: int
     leaver_status: int
-    party_size: Optional[int]
+    lane: Optional[int] = None
+    skill: Optional[int] = None
+    version: Optional[int] = None
+    lane_role: Optional[int] = None
+    is_roaming: Optional[bool] = None
+    party_size: Optional[int] = None
 
 
 @dataclass(slots=True)
@@ -274,12 +275,12 @@ class DotaItem:
     mc: Union[bool, int]
     cd: int
     lore: str
-    components: Optional[List[str]]
     created: bool
     dname: str = ""
     qual: str = ""
     hint: Optional[List[str]] = None
     charges: Union[bool, int] = False
+    components: Optional[List[str]] = None
 
 
 class CacheWithLifetime:
@@ -327,14 +328,16 @@ async def get_permanent_buffs() -> Dict[str, str]:
 
 
 @CacheWithLifetime
-async def get_heroes() -> Dict[str, Hero]:
+async def get_heroes() -> Dict[int, Hero]:
     data = await get_json(
         "https://raw.githubusercontent.com/odota/dotaconstants/master/build/heroes.json"
     )
-    return ctor.load(Dict[str, Hero], data)
+    return {
+        int(hero_id): ctor.load(Hero, hero_data) for hero_id, hero_data in data.items()
+    }
 
 
-async def get_json(url: str) -> Any:
+async def get_json(url: str) -> Dict[str, Any]:
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             data = await response.read()
