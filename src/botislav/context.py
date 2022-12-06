@@ -49,11 +49,11 @@ class Context:
 @dataclass(slots=True)
 class ContextManager:
     _cache: pickledb.PickleDB
-    _active_reply_queues: Dict[str, asyncio.Queue] = attrib(factory=dict)
+    _active_reply_queues: Dict[str, "asyncio.Queue[discord.Message]"] = attrib(factory=dict)
 
     @contextmanager
     def get_context(self, key: str, message: discord.Message) -> Context:
-        reply_queue = asyncio.Queue()
+        reply_queue: "asyncio.Queue[discord.Message]" = asyncio.Queue()
         self._active_reply_queues[key] = reply_queue
 
         if raw_cache := self._cache.get(key):

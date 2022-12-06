@@ -14,7 +14,6 @@ from typing import (
 
 import ctor
 import aiohttp
-from functools import cache
 from attr import dataclass
 
 __all__ = [
@@ -225,7 +224,10 @@ class DotaMatch:
         return f"https://www.opendota.com/matches/{self.match_id}"
 
     def find_player(self, account_id: int) -> Optional[Player]:
-        return next(filter(lambda p: p.account_id == account_id, self.players), None)
+        for player in self.players:
+            if player.account_id == account_id:
+                return player
+        return None
 
 
 @dataclass(slots=True, frozen=True)
