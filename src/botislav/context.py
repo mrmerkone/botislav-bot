@@ -20,7 +20,6 @@ class Cache:
 class Context:
     key: str
     cache: Cache
-
     _message: discord.Message
     _reply_queue: asyncio.Queue
 
