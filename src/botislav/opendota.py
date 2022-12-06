@@ -351,9 +351,9 @@ async def get_match(match_id: Union[str, int]) -> DotaMatch:
 
 
 async def get_player_recent_matches(
-    account_id: Union[str, int], limit: int = 10
+    account_id: Union[str, int], limit: int = 10, significant: Literal[0, 1] = 0
 ) -> List[PlayerRecentMatch]:
     data = await get_json(
-        f"https://api.opendota.com/api/players/{account_id}/recentMatches?limit={limit}"
+        f"https://api.opendota.com/api/players/{account_id}/recentMatches?limit={limit}&significant={significant}"
     )
     return ctor.load(List[PlayerRecentMatch], data)
