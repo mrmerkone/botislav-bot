@@ -33,6 +33,9 @@ class Context:
     async def send_text(self, text: str) -> None:
         await self._message.channel.send(text)
 
+    async def add_reaction(self, emoji: str) -> None:
+        await self._message.add_reaction(emoji)
+
     async def wait_for_user_reply(self, timeout: float = 5) -> bool:
         try:
             self._message = await asyncio.wait_for(

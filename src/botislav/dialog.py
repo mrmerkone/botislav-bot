@@ -5,7 +5,7 @@ from typing import Dict
 import discord
 from attr import dataclass, attrib
 
-from botislav.context import Context, ContextManager
+from botislav.context import ContextManager
 from botislav.handlers import Handler
 from botislav.intents import IntentClassifier
 
