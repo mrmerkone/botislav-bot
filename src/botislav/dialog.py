@@ -19,7 +19,8 @@ class DialogManager:
     handlers: Dict[str, Handler] = attrib(factory=dict)
 
     async def _start_dialog(self, key: str, message: discord.Message):
-        intent = self.intent_classifier.get_intent(message.content)
+        phrase = message.content.lower()
+        intent = self.intent_classifier.get_intent(phrase)
         handler = self.handlers[intent.handler_id]
         with self.context_manager.get_context(key, message) as context:
             await handler(context)
