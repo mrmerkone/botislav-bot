@@ -346,7 +346,6 @@ async def get_json(url: str) -> Dict[str, Any]:
             return json.loads(data)
 
 
-@CacheWithLifetime
 async def get_match(match_id: Union[str, int]) -> DotaMatch:
     data = await get_json(f"https://api.opendota.com/api/matches/{match_id}")
     return ctor.load(DotaMatch, data)
