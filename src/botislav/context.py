@@ -20,8 +20,17 @@ class Cache:
 class Context:
     key: str
     cache: Cache
+    _client: discord.Client
     _message: discord.Message
     _reply_queue: asyncio.Queue
+
+    def normalize_emoji(self, emoji: str) -> str:
+        if emoji.startswith("<") and emoji.endswith(">"):
+            return emoji
+        emoji = emoji.strip(" \n\r\t:")
+        if found := discord.utils.get(self._client.emojis, name=emoji):
+            return str(found)
+        return f":{emoji}:"
 
     @property
     def user_text(self) -> str:
@@ -53,6 +62,11 @@ class ContextManager:
     _cache: pickledb.PickleDB
     _active_reply_queues: Dict[str, "asyncio.Queue[discord.Message]"] = attrib(factory=dict)
 
+    _client: discord.Client = attrib(init=False)
+
+    def set_client(self, client: discord.Client):
+        self._client = client
+
     @contextmanager
     def get_context(self, key: str, message: discord.Message):
         reply_queue: "asyncio.Queue[discord.Message]" = asyncio.Queue()
@@ -65,7 +79,7 @@ class ContextManager:
 
         try:
 
-            yield Context(key=key, message=message, cache=cache, reply_queue=reply_queue)
+            yield Context(key=key, message=message, cache=cache, reply_queue=reply_queue, client=self._client)
 
         finally:
             self._active_reply_queues.pop(key)

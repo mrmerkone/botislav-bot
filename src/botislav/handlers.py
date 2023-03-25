@@ -36,51 +36,48 @@ async def pubg_lastmatch(context: Context) -> None:
     await context.reply_to_user("Ты что играешь в БАБАДЖИ ???")
 
 
+@handles_exceptions
 async def link_account(context: Context) -> None:
     if match := OPENDOTA_ID_PATTERN.search(context.user_text):
         groups = match.groupdict()
         context.cache.opendota_id = int(groups["opendota_id"])
         await context.reply_to_user("Привязал к тебе этот профиль OpenDota")
-        await context.add_reaction("clueless")
-
-
-async def ensure_user_has_linked_opendota(context: Context) -> None:
-
-    if context.cache.opendota_id:
-        return
-
-    await context.reply_to_user("Дай ссылку на профиль в https://www.opendota.com")
-    replied = await context.wait_for_user_reply(timeout=60)
-
-    if not replied:
-        return
-
-    await link_account(context)
+        await context.add_reaction(context.normalize_emoji("FeelsGood"))
 
 
 @handles_exceptions
 async def dota_lastmatch(context: Context) -> None:
 
-    await ensure_user_has_linked_opendota(context)
+    if not context.cache.opendota_id:
+
+        await context.reply_to_user("Дай ссылку на профиль в https://www.opendota.com")
+        replied = await context.wait_for_user_reply(timeout=60)
+
+        if not replied:
+            return
+
+        await link_account(context)
 
     opendota_id = context.cache.opendota_id
-
     if not opendota_id:
         await context.reply_to_user("Не могу найти матч, не зная твоего профиля")
         return
 
     recent_matches = await get_player_recent_matches(account_id=opendota_id, limit=1)
+    recent_match = next(iter(recent_matches), None)
 
-    if recent_match := next(iter(recent_matches), None):
-        match = await get_match(recent_match.match_id)
-        if player := match.find_player(opendota_id):
-            heroes = await get_heroes()
-            player_hero = heroes[player.hero_id]
-            await context.reply_to_user(
-                f"Ты {'выйграл' if player.win else 'проиграл'} на {player_hero.localized_name} со счетом "
-                f"{player.kills}/{player.deaths}/{player.assists} "
-                f"{match.url}"
-            )
+    if not recent_match:
+        await context.reply_to_user("Не могу найти твой последний матч")
+        return
+
+    match = await get_match(recent_match.match_id)
+    if player := match.find_player(opendota_id):
+        hero = (await get_heroes())[player.hero_id]
+        await context.reply_to_user(
+            f"Ты {'выйграл' if player.win else 'проиграл'} на {hero.localized_name} со счетом "
+            f"{player.kills}/{player.deaths}/{player.assists} "
+            f"{match.url}"
+        )
 
 
 @handles_exceptions

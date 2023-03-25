@@ -14,12 +14,19 @@ def message():
 
 
 @pytest.fixture
-def context(message):
+def client():
+    mock = MagicMock()
+    return mock
+
+
+@pytest.fixture
+def context(message, client):
     return Context(
         key="test",
         message=message,
         reply_queue=asyncio.Queue(),
-        cache=Cache(steam_id="steam_id", opendota_id=123456)
+        cache=Cache(steam_id="steam_id", opendota_id=123456),
+        client=client
     )
 
 
@@ -31,8 +38,10 @@ def cache():
 
 
 @pytest.fixture
-def context_manger(cache):
-    return ContextManager(cache=cache)
+def context_manger(cache, client):
+    manger = ContextManager(cache=cache)
+    manger.set_client(client)
+    return manger
 
 
 @pytest.mark.asyncio

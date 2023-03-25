@@ -17,6 +17,10 @@ class DialogManager:
     context_manager: ContextManager
     intent_classifier: IntentClassifier
     handlers: Dict[str, Handler] = attrib(factory=dict)
+    client: discord.Client = attrib(init=False)
+
+    def set_client(self, client: discord.Client):
+        self.client = client
 
     async def _start_dialog(self, key: str, message: discord.Message):
         phrase = message.content.lower()
