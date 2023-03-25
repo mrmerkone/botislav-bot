@@ -37,11 +37,13 @@ class Context:
         await self._message.add_reaction(emoji)
 
     async def wait_for_user_reply(self, timeout: float = 5) -> bool:
+        reply_wait_task = asyncio.Task(self._reply_queue.get())
         try:
             self._message = await asyncio.wait_for(
-                fut=self._reply_queue.get(), timeout=timeout
+                fut=reply_wait_task, timeout=timeout
             )
         except asyncio.TimeoutError:
+            reply_wait_task.cancel()
             return False
         return True
 
@@ -52,7 +54,7 @@ class ContextManager:
     _active_reply_queues: Dict[str, "asyncio.Queue[discord.Message]"] = attrib(factory=dict)
 
     @contextmanager
-    def get_context(self, key: str, message: discord.Message) -> Context:
+    def get_context(self, key: str, message: discord.Message):
         reply_queue: "asyncio.Queue[discord.Message]" = asyncio.Queue()
         self._active_reply_queues[key] = reply_queue
 
@@ -61,10 +63,13 @@ class ContextManager:
         else:
             cache = Cache()
 
-        yield Context(key=key, message=message, cache=cache, reply_queue=reply_queue)
+        try:
 
-        self._active_reply_queues.pop(key)
-        self._cache.set(key, ctor.dump(cache))
+            yield Context(key=key, message=message, cache=cache, reply_queue=reply_queue)
+
+        finally:
+            self._active_reply_queues.pop(key)
+            self._cache.set(key, ctor.dump(cache))
 
     def has_active_context(self, key: str) -> bool:
         return key in self._active_reply_queues
