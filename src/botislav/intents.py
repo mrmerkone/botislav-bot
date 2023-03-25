@@ -19,22 +19,30 @@ __all__ = [
 
 
 INTENTS_GRAMMAR = """
-intent: dota_lastmatch | pubg_lastmatch | greeting
+intent: link_account | dota_lastmatch | pubg_lastmatch | greeting 
 
 // -- greeting --
 
 greeting: GREETING
 GREETING: "прив" "ет"? | "здаров" "а"? | "хай" | "hi" | "hello"
 
+//// -- link_account --
+
+link_account: "привяжи" WS OPENDOTA
+
+OPENDOTA: "https://www.opendota.com/players/" DIGIT+
+WS: /[ \t]+/
+DIGIT: /[0-9]/
+
 // -- lastmatch --
 
 dota_lastmatch: LASTMATCH ("в"|"in")? DOTA | LASTMATCH
 pubg_lastmatch: LASTMATCH ("в"|"in")? PUBG
 
-LASTMATCH: "лм" | ("последняя "? "игра") | ("ласт "? "катка") | "!"? "last" " "? "match" | "!"? "lm"
+LASTMATCH: "лм" | ("последняя "? "игра") | ("ласт" " "? "катка") | "!"? "last" " "? "match" | "!"? "lm"
 
 game: PUBG | DOTA
-PUBG: "pubg" | "пубг" | "пабг" | "пабж" | "бабаджи" | "baba" " "? "gee"
+PUBG: "pubg" | "пубг" | "пабг" | "пабж" | "бабаджи" | "babagee"
 DOTA: ("dota" | "dotes" | "дота" | "доту" | "дока" | "доку") " "? ("2" | "two" | "два")?
 
 %import common.WS_INLINE
@@ -79,7 +87,13 @@ class GreetingTransformer(Transformer):
         return IntentMeta(handler_id="greeting")
 
 
+class LinkAccountTransformer(Transformer):
+    # noinspection PyMethodMayBeStatic
+    def link_account(self, _) -> IntentMeta:
+        return IntentMeta(handler_id="link_account")
+
+
 def get_intent_classifier() -> IntentClassifier:
     parser = Lark(grammar=INTENTS_GRAMMAR, start="intent")
-    transformer = GreetingTransformer() * LastMatchTransformer()
+    transformer = GreetingTransformer() * LastMatchTransformer() * LinkAccountTransformer()
     return IntentClassifier(parser=parser, transformer=transformer)

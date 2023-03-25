@@ -22,9 +22,10 @@ def intent_classifier() -> IntentClassifier:
         ("lm", IntentMeta("dota_lastmatch")),
         ("!lm", IntentMeta("dota_lastmatch")),
         ("ласт катка в pubg", IntentMeta("pubg_lastmatch")),
-        ("lm baba gee", IntentMeta("pubg_lastmatch")),
+        ("lm babagee", IntentMeta("pubg_lastmatch")),
         ("lastmatch", IntentMeta("dota_lastmatch")),
-    ),
+        ("привяжи https://www.opendota.com/players/55136643", IntentMeta("link_account")),
+    )
 )
 def test_intent_classifier(
     intent_classifier: IntentClassifier, phrase: str, expected_meta: IntentMeta

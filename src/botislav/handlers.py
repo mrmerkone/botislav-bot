@@ -1,24 +1,47 @@
 import re
+import logging
 from typing import Dict, Callable, Awaitable
 
 from botislav.context import Context
 from botislav.opendota import get_player_recent_matches, get_match, get_heroes
+
+_logger = logging.getLogger(__name__)
 
 __all__ = [
     "Handler",
     "get_handlers",
 ]
 
+
 Handler = Callable[[Context], Awaitable[None]]
 
 
 OPENDOTA_ID_PATTERN = re.compile(
-    r"^(https://www.)?opendota.com/players/(?P<opendota_id>\d+)$"
+    r"(https?://)?(www\.)?opendota\.com/players/(?P<opendota_id>\d+)"
 )
 
 
+def handles_exceptions(func):
+    async def wrapped(context: Context):
+        try:
+            return await func(context)
+        except Exception as error:
+            _logger.error(f"Handler {func.__qualname__} failed with {error}", exc_info=True)
+            await context.reply_to_user("Упсс... кажется я сломался ...")
+    return wrapped
+
+
+@handles_exceptions
 async def pubg_lastmatch(context: Context) -> None:
     await context.reply_to_user("Ты что играешь в БАБАДЖИ ???")
+
+
+async def link_account(context: Context) -> None:
+    if match := OPENDOTA_ID_PATTERN.search(context.user_text):
+        groups = match.groupdict()
+        context.cache.opendota_id = int(groups["opendota_id"])
+        await context.reply_to_user("Привязал к тебе этот профиль OpenDota")
+        await context.add_reaction("clueless")
 
 
 async def ensure_user_has_linked_opendota(context: Context) -> None:
@@ -32,11 +55,10 @@ async def ensure_user_has_linked_opendota(context: Context) -> None:
     if not replied:
         return
 
-    if match := OPENDOTA_ID_PATTERN.match(context.user_text):
-        context.cache.opendota_id = int(match.groupdict().get("opendota_id"))
-        await context.reply_to_user("Привязал к тебе этот профиль")
+    await link_account(context)
 
 
+@handles_exceptions
 async def dota_lastmatch(context: Context) -> None:
 
     await ensure_user_has_linked_opendota(context)
@@ -44,7 +66,7 @@ async def dota_lastmatch(context: Context) -> None:
     opendota_id = context.cache.opendota_id
 
     if not opendota_id:
-        await context.reply_to_user("Не могу продолжить, не зная твоего профиля")
+        await context.reply_to_user("Не могу найти матч, не зная твоего профиля")
         return
 
     recent_matches = await get_player_recent_matches(account_id=opendota_id, limit=1)
@@ -61,16 +83,19 @@ async def dota_lastmatch(context: Context) -> None:
             )
 
 
+@handles_exceptions
 async def greeting(context: Context) -> None:
     await context.reply_to_user("Здарова")
 
 
+@handles_exceptions
 async def silence(_context: Context) -> None:
     pass
 
 
 def get_handlers() -> Dict[str, Handler]:
     return {
+        "link_account": link_account,
         "dota_lastmatch": dota_lastmatch,
         "pubg_lastmatch": pubg_lastmatch,
         "greeting": greeting,

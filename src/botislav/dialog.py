@@ -24,6 +24,7 @@ class DialogManager:
         handler = self.handlers[intent.handler_id]
         with self.context_manager.get_context(key, message) as context:
             await handler(context)
+        _logger.info(f"Dialog {key} ended")
 
     async def handle(self, message: discord.Message) -> None:
         key = str(message.author.id)
