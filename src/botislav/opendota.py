@@ -86,66 +86,66 @@ class Hero:
 
 @dataclass(slots=True, frozen=True)
 class ChatEvent:
-    time: int
-    type: str
-    key: str
-    slot: int
-    player_slot: int
+    time: Optional[int]
+    type: Optional[str]
+    key: Optional[str]
+    slot: Optional[int]
+    player_slot: Optional[int]
 
 
 @dataclass(slots=True, frozen=True)
 class PlayerBuybackEvent:
-    time: int
-    slot: int
-    type: Literal["buyback_log"]
-    player_slot: int
+    time: Optional[int]
+    slot: Optional[int]
+    type: Optional[Literal["buyback_log"]]
+    player_slot: Optional[int]
 
 
 @dataclass(slots=True, frozen=True)
 class PermanentBuffState:
-    permanent_buff: int
-    stack_count: int
+    permanent_buff: Optional[int]
+    stack_count: Optional[int]
 
 
 @dataclass(slots=True, frozen=True, repr=False)
 class Player:
-    match_id: int
-    player_slot: int
-    assists: int
-    deaths: int
-    denies: int
-    gold: int
-    gold_per_min: int
-    gold_spent: int
-    hero_damage: int
-    hero_healing: int
-    hero_id: int
-    item_0: int
-    item_1: int
-    item_2: int
-    item_3: int
-    item_4: int
-    item_5: int
-    item_neutral: int
-    kills: int
-    last_hits: int
-    leaver_status: int
-    level: int
-    tower_damage: int
-    xp_per_min: int
-    radiant_win: bool
-    start_time: int
-    duration: int
-    cluster: int
-    lobby_type: int
-    game_mode: int
-    patch: int
-    isRadiant: bool
-    win: int
-    lose: int
-    total_gold: int
-    total_xp: int
-    abandons: int
+    match_id: Optional[int]
+    player_slot: Optional[int]
+    assists: Optional[int]
+    deaths: Optional[int]
+    denies: Optional[int]
+    gold: Optional[int]
+    gold_per_min: Optional[int]
+    gold_spent: Optional[int]
+    hero_damage: Optional[int]
+    hero_healing: Optional[int]
+    hero_id: Optional[int]
+    item_0: Optional[int]
+    item_1: Optional[int]
+    item_2: Optional[int]
+    item_3: Optional[int]
+    item_4: Optional[int]
+    item_5: Optional[int]
+    item_neutral: Optional[int]
+    kills: Optional[int]
+    last_hits: Optional[int]
+    leaver_status: Optional[int]
+    level: Optional[int]
+    tower_damage: Optional[int]
+    xp_per_min: Optional[int]
+    radiant_win: Optional[bool]
+    start_time: Optional[int]
+    duration: Optional[int]
+    cluster: Optional[int]
+    lobby_type: Optional[int]
+    game_mode: Optional[int]
+    patch: Optional[int]
+    isRadiant: Optional[bool]
+    win: Optional[int]
+    lose: Optional[int]
+    total_gold: Optional[int]
+    total_xp: Optional[int]
+    abandons: Optional[int]
     rank_tier: Optional[int]
     account_id: Optional[int] = None
     camps_stacked: Optional[int] = None
@@ -183,27 +183,27 @@ class Player:
 @dataclass(slots=True, frozen=True, repr=False)
 class DotaMatch:
     match_id: int
-    barracks_status_dire: int
-    barracks_status_radiant: int
-    cluster: int
-    dire_score: int
-    duration: int
-    engine: int
-    first_blood_time: int
-    game_mode: int
-    human_players: int
-    leagueid: int
-    lobby_type: int
-    match_seq_num: int
-    negative_votes: int
-    positive_votes: int
-    radiant_score: int
-    radiant_win: bool
-    start_time: int
-    tower_status_dire: int
-    tower_status_radiant: int
+    barracks_status_dire: Optional[int]
+    barracks_status_radiant: Optional[int]
+    cluster: Optional[int]
+    dire_score: Optional[int]
+    duration: Optional[int]
+    engine: Optional[int]
+    first_blood_time: Optional[int]
+    game_mode: Optional[int]
+    human_players: Optional[int]
+    leagueid: Optional[int]
+    lobby_type: Optional[int]
+    match_seq_num: Optional[int]
+    negative_votes: Optional[int]
+    positive_votes: Optional[int]
+    radiant_score: Optional[int]
+    radiant_win: Optional[bool]
+    start_time: Optional[int]
+    tower_status_dire: Optional[int]
+    tower_status_radiant: Optional[int]
     players: List[Player]
-    patch: int
+    patch: Optional[int]
     skill: Optional[int] = None
     version: Optional[int] = None
     dire_team_id: Optional[int] = None
@@ -233,24 +233,24 @@ class DotaMatch:
 @dataclass(slots=True, frozen=True)
 class PlayerRecentMatch:
     match_id: int
-    player_slot: int
-    radiant_win: bool
-    duration: int
-    game_mode: int
-    lobby_type: int
-    hero_id: int
-    start_time: int
-    kills: int
-    deaths: int
-    assists: int
-    xp_per_min: int
-    gold_per_min: int
-    hero_damage: int
-    tower_damage: int
-    hero_healing: int
-    last_hits: int
-    cluster: int
-    leaver_status: int
+    player_slot: Optional[int]
+    radiant_win: Optional[bool]
+    duration: Optional[int]
+    game_mode: Optional[int]
+    lobby_type: Optional[int]
+    hero_id: Optional[int]
+    start_time: Optional[int]
+    kills: Optional[int]
+    deaths: Optional[int]
+    assists: Optional[int]
+    xp_per_min: Optional[int]
+    gold_per_min: Optional[int]
+    hero_damage: Optional[int]
+    tower_damage: Optional[int]
+    hero_healing: Optional[int]
+    last_hits: Optional[int]
+    cluster: Optional[int]
+    leaver_status: Optional[int]
     lane: Optional[int] = None
     skill: Optional[int] = None
     version: Optional[int] = None
@@ -358,3 +358,12 @@ async def get_player_recent_matches(
         f"https://api.opendota.com/api/players/{account_id}/recentMatches?limit={limit}&significant={significant}"
     )
     return ctor.load(List[PlayerRecentMatch], data)
+
+
+async def main():
+    await get_match(6862778480)
+
+
+if __name__ == '__main__':
+    import asyncio
+    asyncio.run(main())
