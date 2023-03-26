@@ -3,6 +3,7 @@ import logging
 from typing import Dict, Callable, Awaitable
 
 from botislav.context import Context
+from botislav.phrases import PHRASE_GENERATOR
 from botislav.opendota import get_player_recent_matches, get_match, get_heroes
 
 _logger = logging.getLogger(__name__)
@@ -73,10 +74,17 @@ async def dota_lastmatch(context: Context) -> None:
     match = await get_match(recent_match.match_id)
     if player := match.find_player(opendota_id):
         hero = (await get_heroes())[player.hero_id]
-        await context.reply_to_user(
-            f"Ты {'выйграл' if player.win else 'проиграл'} на {hero.localized_name} со счетом "
-            f"{player.kills}/{player.deaths}/{player.assists} "
-            f"{match.url}"
+        phrase = PHRASE_GENERATOR.get_phrase(
+            win=player.win,
+            username=player.personaname,
+            hero=hero.localized_name,
+            score="{}/{}/{}".format(player.kills, player.deaths, player.assists)
+        )
+        await context.reply_to_user_with_embed(
+            title="{} {}".format(match.start_date, match.game_mode_localized),
+            description="{}\n\n[OpenDota] {}".format(phrase, match.url),
+            color=0x00a0ea,
+            thumbnail=hero.image_vert_url
         )
 
 

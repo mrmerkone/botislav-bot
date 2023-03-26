@@ -39,6 +39,15 @@ class Context:
     async def reply_to_user(self, text: str) -> None:
         await self._message.reply(text)
 
+    async def reply_to_user_with_embed(self, title: str, description: str, color: int, thumbnail: str) -> None:
+        embed = discord.Embed(
+            title=title,
+            description=description,
+            color=color
+        )
+        embed.set_thumbnail(url=thumbnail)
+        await self._message.channel.send(embed=embed, reference=self._message)
+
     async def send_text(self, text: str) -> None:
         await self._message.channel.send(text)
 

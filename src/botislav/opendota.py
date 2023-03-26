@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from time import time
 from typing import (
     Union,
@@ -82,6 +83,14 @@ class Hero:
     legs: int
     day_vision: int
     night_vision: int
+
+    @property
+    def image_vert_url(self) -> str:
+        return "https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/{}_vert.jpg".format(self.name[14:])
+
+    @property
+    def icon_url(self) -> str:
+        return "https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/{}_icon.png".format(self.name[14:])
 
 
 @dataclass(slots=True, frozen=True)
@@ -180,6 +189,35 @@ class Player:
     teamfight_participation: Optional[float] = None
 
 
+GAME_MODES = [
+    "Unknown",
+    "All pick",
+    "Captains mode",
+    "Random draft",
+    "Single draft",
+    "All random",
+    "Intro",
+    "Diretide",
+    "Reverse captains mode",
+    "Greeviling",
+    "Tutorial",
+    "Mid only",
+    "Least played",
+    "Limited heroes",
+    "Compendium matchmaking",
+    "Custom",
+    "Captains draft",
+    "Balanced draft",
+    "Ability draft",
+    "Event",
+    "All random death match",
+    "1v1 mid",
+    "All draft",
+    "Turbo",
+    "Mutation"
+]
+
+
 @dataclass(slots=True, frozen=True, repr=False)
 class DotaMatch:
     match_id: int
@@ -218,6 +256,14 @@ class DotaMatch:
     replay_salt: Optional[int] = None
     series_id: Optional[int] = None
     series_type: Optional[int] = None
+
+    @property
+    def start_date(self) -> str:
+        return datetime.fromtimestamp(self.start_time).strftime('%d-%b-%Y')
+
+    @property
+    def game_mode_localized(self) -> str:
+        return GAME_MODES[self.game_mode]
 
     @property
     def url(self) -> str:
