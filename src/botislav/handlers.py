@@ -80,8 +80,9 @@ async def dota_lastmatch(context: Context) -> None:
             hero=hero.localized_name,
             score="{}/{}/{}".format(player.kills, player.deaths, player.assists)
         )
+        emoji = context.normalize_emoji("clueless") if player.win else context.normalize_emoji("aware")
         await context.reply_to_user_with_embed(
-            title="{} {}".format(match.start_date, match.game_mode_localized),
+            title="{} {} {}".format(match.start_date, match.game_mode_localized, emoji),
             description="{}\n\n[OpenDota] {}".format(phrase, match.url),
             color=0x00a0ea,
             thumbnail=hero.image_vert_url

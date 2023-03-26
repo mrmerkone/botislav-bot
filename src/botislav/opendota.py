@@ -221,6 +221,8 @@ GAME_MODES = [
 @dataclass(slots=True, frozen=True, repr=False)
 class DotaMatch:
     match_id: int
+    start_time: int
+    game_mode: int
     barracks_status_dire: Optional[int]
     barracks_status_radiant: Optional[int]
     cluster: Optional[int]
@@ -228,7 +230,6 @@ class DotaMatch:
     duration: Optional[int]
     engine: Optional[int]
     first_blood_time: Optional[int]
-    game_mode: Optional[int]
     human_players: Optional[int]
     leagueid: Optional[int]
     lobby_type: Optional[int]
@@ -237,7 +238,6 @@ class DotaMatch:
     positive_votes: Optional[int]
     radiant_score: Optional[int]
     radiant_win: Optional[bool]
-    start_time: Optional[int]
     tower_status_dire: Optional[int]
     tower_status_radiant: Optional[int]
     players: List[Player]
@@ -259,7 +259,7 @@ class DotaMatch:
 
     @property
     def start_date(self) -> str:
-        return datetime.fromtimestamp(self.start_time).strftime('%d-%b-%Y')
+        return datetime.fromtimestamp(self.start_time).strftime('%d/%m/%Y')
 
     @property
     def game_mode_localized(self) -> str:
