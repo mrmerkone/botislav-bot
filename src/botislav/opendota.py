@@ -188,6 +188,13 @@ class Player:
     pings: Optional[int] = None
     teamfight_participation: Optional[float] = None
 
+    @property
+    def kda(self) -> float:
+        if not self.deaths:
+            return self.assists + self.kills
+        else:
+            return (self.assists + self.kills) / self.deaths
+
 
 GAME_MODES = [
     "Unknown",
