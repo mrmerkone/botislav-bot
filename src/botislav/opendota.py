@@ -159,8 +159,8 @@ class Player:
     account_id: Optional[int] = None
     camps_stacked: Optional[int] = None
     creeps_stacked: Optional[int] = None
-    damage: Optional[float] = None
-    damage_taken: Optional[float] = None
+    damage: Optional[Dict[str, int]] = None
+    damage_taken: Optional[Dict[str, int]] = None
     dn_t: Optional[List[int]] = None
     firstblood_claimed: Optional[int] = None
     net_worth: Optional[int] = None
