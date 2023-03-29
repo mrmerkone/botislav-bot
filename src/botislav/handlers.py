@@ -76,6 +76,7 @@ async def dota_lastmatch(context: Context) -> None:
         hero = (await get_heroes())[player.hero_id]
         phrase = PHRASE_GENERATOR.get_phrase(
             win=player.win,
+            kda=player.kda,
             username=player.personaname,
             hero=hero.localized_name,
             score="{}/{}/{}".format(player.kills, player.deaths, player.assists)
