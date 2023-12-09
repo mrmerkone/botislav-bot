@@ -15,7 +15,7 @@ from typing import (
 
 import ctor
 import aiohttp
-from attr import dataclass
+from attr import dataclass, attrib
 
 __all__ = [
     "DotaMatch",
@@ -95,67 +95,66 @@ class Hero:
 
 @dataclass(slots=True, frozen=True)
 class ChatEvent:
-    time: Optional[int]
-    type: Optional[str]
-    key: Optional[str]
-    slot: Optional[int]
-    player_slot: Optional[int]
+    time: Optional[int] = None
+    type: Optional[str] = None
+    key: Optional[str] = None
+    slot: Optional[int] = None
+    player_slot: Optional[int] = None
 
 
 @dataclass(slots=True, frozen=True)
 class PlayerBuybackEvent:
-    time: Optional[int]
-    slot: Optional[int]
-    type: Optional[Literal["buyback_log"]]
-    player_slot: Optional[int]
+    time: Optional[int] = None
+    slot: Optional[int] = None
+    type: Optional[Literal["buyback_log"]] = None
+    player_slot: Optional[int] = None
 
 
 @dataclass(slots=True, frozen=True)
 class PermanentBuffState:
-    permanent_buff: Optional[int]
-    stack_count: Optional[int]
+    permanent_buff: Optional[int] = None
+    stack_count: Optional[int] = None
 
 
 @dataclass(slots=True, frozen=True, repr=False)
 class Player:
-    match_id: Optional[int]
-    player_slot: Optional[int]
-    assists: Optional[int]
-    deaths: Optional[int]
-    denies: Optional[int]
-    gold: Optional[int]
-    gold_per_min: Optional[int]
-    gold_spent: Optional[int]
-    hero_damage: Optional[int]
-    hero_healing: Optional[int]
-    hero_id: Optional[int]
-    item_0: Optional[int]
-    item_1: Optional[int]
-    item_2: Optional[int]
-    item_3: Optional[int]
-    item_4: Optional[int]
-    item_5: Optional[int]
-    item_neutral: Optional[int]
-    kills: Optional[int]
-    last_hits: Optional[int]
-    leaver_status: Optional[int]
-    level: Optional[int]
-    tower_damage: Optional[int]
-    xp_per_min: Optional[int]
-    radiant_win: Optional[bool]
-    start_time: Optional[int]
-    duration: Optional[int]
-    cluster: Optional[int]
-    lobby_type: Optional[int]
-    game_mode: Optional[int]
-    patch: Optional[int]
-    isRadiant: Optional[bool]
-    win: Optional[int]
-    lose: Optional[int]
-    total_gold: Optional[int]
-    total_xp: Optional[int]
-    abandons: Optional[int]
-    rank_tier: Optional[int]
+    player_slot: Optional[int] = None
+    assists: Optional[int] = None
+    deaths: Optional[int] = None
+    denies: Optional[int] = None
+    gold: Optional[int] = None
+    gold_per_min: Optional[int] = None
+    gold_spent: Optional[int] = None
+    hero_damage: Optional[int] = None
+    hero_healing: Optional[int] = None
+    hero_id: Optional[int] = None
+    item_0: Optional[int] = None
+    item_1: Optional[int] = None
+    item_2: Optional[int] = None
+    item_3: Optional[int] = None
+    item_4: Optional[int] = None
+    item_5: Optional[int] = None
+    item_neutral: Optional[int] = None
+    kills: Optional[int] = None
+    last_hits: Optional[int] = None
+    leaver_status: Optional[int] = None
+    level: Optional[int] = None
+    tower_damage: Optional[int] = None
+    xp_per_min: Optional[int] = None
+    radiant_win: Optional[bool] = None
+    start_time: Optional[int] = None
+    duration: Optional[int] = None
+    cluster: Optional[int] = None
+    lobby_type: Optional[int] = None
+    game_mode: Optional[int] = None
+    patch: Optional[int] = None
+    isRadiant: Optional[bool] = None
+    win: Optional[int] = None
+    lose: Optional[int] = None
+    total_gold: Optional[int] = None
+    total_xp: Optional[int] = None
+    abandons: Optional[int] = None
+    rank_tier: Optional[int] = None
     account_id: Optional[int] = None
     camps_stacked: Optional[int] = None
     creeps_stacked: Optional[int] = None
@@ -230,25 +229,23 @@ class DotaMatch:
     match_id: int
     start_time: int
     game_mode: int
-    barracks_status_dire: Optional[int]
-    barracks_status_radiant: Optional[int]
-    cluster: Optional[int]
-    dire_score: Optional[int]
-    duration: Optional[int]
-    engine: Optional[int]
-    first_blood_time: Optional[int]
-    human_players: Optional[int]
-    leagueid: Optional[int]
-    lobby_type: Optional[int]
-    match_seq_num: Optional[int]
-    negative_votes: Optional[int]
-    positive_votes: Optional[int]
-    radiant_score: Optional[int]
-    radiant_win: Optional[bool]
-    tower_status_dire: Optional[int]
-    tower_status_radiant: Optional[int]
-    players: List[Player]
-    patch: Optional[int]
+    barracks_status_dire: Optional[int] = None
+    barracks_status_radiant: Optional[int] = None
+    cluster: Optional[int] = None
+    dire_score: Optional[int] = None
+    duration: Optional[int] = None
+    engine: Optional[int] = None
+    first_blood_time: Optional[int] = None
+    human_players: Optional[int] = None
+    leagueid: Optional[int] = None
+    lobby_type: Optional[int] = None
+    match_seq_num: Optional[int] = None
+    radiant_score: Optional[int] = None
+    radiant_win: Optional[bool] = None
+    tower_status_dire: Optional[int] = None
+    tower_status_radiant: Optional[int] = None
+    players: List[Player] = attrib(factory=list)
+    patch: Optional[int] = None
     skill: Optional[int] = None
     version: Optional[int] = None
     dire_team_id: Optional[int] = None
@@ -286,24 +283,24 @@ class DotaMatch:
 @dataclass(slots=True, frozen=True)
 class PlayerRecentMatch:
     match_id: int
-    player_slot: Optional[int]
-    radiant_win: Optional[bool]
-    duration: Optional[int]
-    game_mode: Optional[int]
-    lobby_type: Optional[int]
-    hero_id: Optional[int]
-    start_time: Optional[int]
-    kills: Optional[int]
-    deaths: Optional[int]
-    assists: Optional[int]
-    xp_per_min: Optional[int]
-    gold_per_min: Optional[int]
-    hero_damage: Optional[int]
-    tower_damage: Optional[int]
-    hero_healing: Optional[int]
-    last_hits: Optional[int]
-    cluster: Optional[int]
-    leaver_status: Optional[int]
+    player_slot: Optional[int] = None
+    radiant_win: Optional[bool] = None
+    duration: Optional[int] = None
+    game_mode: Optional[int] = None
+    lobby_type: Optional[int] = None
+    hero_id: Optional[int] = None
+    start_time: Optional[int] = None
+    kills: Optional[int] = None
+    deaths: Optional[int] = None
+    assists: Optional[int] = None
+    xp_per_min: Optional[int] = None
+    gold_per_min: Optional[int] = None
+    hero_damage: Optional[int] = None
+    tower_damage: Optional[int] = None
+    hero_healing: Optional[int] = None
+    last_hits: Optional[int] = None
+    cluster: Optional[int] = None
+    leaver_status: Optional[int] = None
     lane: Optional[int] = None
     skill: Optional[int] = None
     version: Optional[int] = None
