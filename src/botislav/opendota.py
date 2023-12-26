@@ -80,7 +80,6 @@ class Hero:
     base_attack_time: int
     attack_point: float
     move_speed: int
-    legs: int
     day_vision: int
     night_vision: int
 
