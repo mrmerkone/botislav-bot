@@ -61,7 +61,7 @@ class Hero:
     img: str
     icon: str
     base_health: int
-    base_health_regen: float
+    base_health_regen: Optional[float]
     base_mana: int
     base_mana_regen: int
     base_armor: int
