@@ -1,20 +1,13 @@
-import json
 from datetime import datetime
-from time import time
 from typing import (
     Union,
     Literal,
     Dict,
     List,
     Optional,
-    Any,
-    Callable,
-    Iterable,
-    Mapping,
 )
 
 import ctor
-import aiohttp
 from attr import dataclass, attrib
 
 __all__ = [
@@ -30,6 +23,8 @@ __all__ = [
     "get_player_recent_matches",
     "get_match",
 ]
+
+from botislav.integrations.utils import CacheWithLifetime, get_json
 
 DOTA_RANK_TIERS = ["I", "II", "III", "IV", "V"]
 DOTA_RANK_NAMES = [
@@ -334,26 +329,6 @@ class DotaItem:
     components: Optional[List[str]] = None
 
 
-class CacheWithLifetime:
-    function: Callable[..., Any]
-
-    _cache: Optional[Any] = None
-    _cache_creation_time: float = -1.0
-    _cache_lifetime: float = 60 * 60 * 24  # 24 hours
-
-    def __init__(self, function: Callable[..., Any]) -> None:
-        self.function = function
-
-    def _cache_is_expired(self) -> bool:
-        return self._cache_creation_time + self._cache_lifetime < time()
-
-    async def __call__(self, *args: Iterable[Any], **kwargs: Mapping[str, Any]) -> Any:
-        if not self._cache or self._cache_is_expired():
-            self._cache = await self.function(*args, **kwargs)
-            self._cache_creation_time = time()
-        return self._cache
-
-
 @CacheWithLifetime
 async def get_items() -> Dict[str, DotaItem]:
     data = await get_json(
@@ -386,13 +361,6 @@ async def get_heroes() -> Dict[int, Hero]:
     return {
         int(hero_id): ctor.load(Hero, hero_data) for hero_id, hero_data in data.items()
     }
-
-
-async def get_json(url: str) -> Dict[str, Any]:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            data = await response.read()
-            return json.loads(data)
 
 
 async def get_match(match_id: Union[str, int]) -> DotaMatch:
