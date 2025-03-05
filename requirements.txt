@@ -10,31 +10,109 @@ aiohttp==3.8.3
     #   discord-py
 aiosignal==1.3.1
     # via aiohttp
+annotated-types==0.7.0
+    # via pydantic
+anyio==4.8.0
+    # via httpx
 async-timeout==4.0.2
     # via aiohttp
 attrs==21.4.0
     # via
     #   -r .\requirements.in
     #   aiohttp
+certifi==2025.1.31
+    # via
+    #   httpcore
+    #   httpx
+    #   requests
 charset-normalizer==2.1.1
-    # via aiohttp
+    # via
+    #   aiohttp
+    #   requests
 ctor==0.3.2
     # via -r .\requirements.in
 discord-py==2.3.2
     # via -r .\requirements.in
+exceptiongroup==1.2.2
+    # via anyio
 frozenlist==1.3.3
     # via
     #   aiohttp
     #   aiosignal
+gigachat==0.1.38
+    # via langchain-gigachat
+h11==0.14.0
+    # via httpcore
+httpcore==1.0.7
+    # via httpx
+httpx==0.27.2
+    # via
+    #   gigachat
+    #   langsmith
 idna==3.4
-    # via yarl
+    # via
+    #   anyio
+    #   httpx
+    #   requests
+    #   yarl
+jsonpatch==1.33
+    # via langchain-core
+jsonpointer==3.0.0
+    # via jsonpatch
+langchain-core==0.3.41
+    # via langchain-gigachat
+langchain-gigachat==0.3.1
+    # via -r .\requirements.in
+langsmith==0.3.11
+    # via langchain-core
 lark==1.1.2
     # via -r .\requirements.in
 multidict==6.0.2
     # via
     #   aiohttp
     #   yarl
+orjson==3.10.15
+    # via langsmith
+packaging==24.2
+    # via
+    #   langchain-core
+    #   langsmith
 pickledb==0.9.2
     # via -r .\requirements.in
+pydantic==2.10.6
+    # via
+    #   gigachat
+    #   langchain-core
+    #   langsmith
+pydantic-core==2.27.2
+    # via pydantic
+pyyaml==6.0.2
+    # via langchain-core
+requests==2.32.3
+    # via
+    #   langsmith
+    #   requests-toolbelt
+requests-toolbelt==1.0.0
+    # via langsmith
+sniffio==1.3.1
+    # via
+    #   anyio
+    #   httpx
+tenacity==9.0.0
+    # via langchain-core
+types-requests==2.32.0.20250301
+    # via langchain-gigachat
+typing-extensions==4.12.2
+    # via
+    #   anyio
+    #   langchain-core
+    #   pydantic
+    #   pydantic-core
+urllib3==2.3.0
+    # via
+    #   requests
+    #   types-requests
 yarl==1.8.1
     # via aiohttp
+zstandard==0.23.0
+    # via langsmith
