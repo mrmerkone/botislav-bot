@@ -39,7 +39,6 @@ class Dota2Hero:
     mana_regen: float
 
 
-@CacheWithLifetime
 async def get_hero_info_from_dota2_com(hero_id: int) -> Dota2Hero:
     data = await get_json(
         f"https://www.dota2.com/datafeed/herodata?language=russian&hero_id={hero_id}"
