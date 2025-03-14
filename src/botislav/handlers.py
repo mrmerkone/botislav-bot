@@ -4,8 +4,9 @@ import logging
 from typing import Dict, Callable, Awaitable, TypedDict, Optional
 
 from attr import dataclass
-from langchain_gigachat import GigaChat
+from gigachat import context
 from langchain_core.prompts import PromptTemplate
+from langchain_gigachat import GigaChat
 
 from botislav.context import Context
 from botislav.integrations.dota2 import get_hero_info_from_dota2_com
@@ -48,23 +49,26 @@ async def link_account(context: Context) -> None:
 
 giga = GigaChat(
     credentials=os.getenv("GIGACHAT_TOKEN"),
-    model="GigaChat-Max",
+    model="GigaChat-2-Max",
     scope="GIGACHAT_API_PERS",
     verify_ssl_certs=False,
     max_tokens=100,
     top_p=0.5
 )
 
+# for gigachat token caching
+context.session_id_cvar.set("f29d33fa-27cc-4132-9a8e-049860952ec0")
 
-PhrasePrompt = PromptTemplate.from_template("""
+
+DESCRIBE_MATCH_PROMPT = PromptTemplate.from_template("""
 --- Задача ---
 Опиши последний матч в Dota 2 игрока! Обязятельно делай отсылки на способности HERO_NAME!
 
 --- Вывод ---
 Будь ироничен и подшучивай над игроком! Обязательно шути! Твой текст не должен быть длинее 2 предложений!
-Если Игрок выйграл и у него хороший счет восхваляй его используя самые сложные эпитеты!
-Если Игрок выйграл и у него плохой счет шути что его затащила команда!
-Если игорок проиграл и у него плохой счет смейся над ним что он якорь и бесполезный!
+Если игрок выйграл и у него хороший счет восхваляй его используя самые сложные эпитеты!
+Если игрок выйграл и у него плохой счет шути что его затащила команда!
+Если игрок проиграл и у него плохой счет смейся над ним что он якорь и бесполезный!
 Если игорок проиграл и у него хороший счет пожалей его чтобы не было так обидно!
 Твой текст должен быть от мужского рода.
 
@@ -72,7 +76,7 @@ PhrasePrompt = PromptTemplate.from_template("""
 HERO_NAME, NICKNAME и KDA из секции информации о матче обязяательно длжны быть в твоем ответе! Выделяй их **!
 
 --- Контекст ---
-Роль:
+Герой:
     HERO_NAME - {hero_name}
     HERO_DESCRIPTION - {hero_description}
 
@@ -82,7 +86,7 @@ HERO_NAME, NICKNAME и KDA из секции информации о матче 
     KDA (Убийсвта/Смерти/Ассистов) - {kda}
 
 Примеры:
-  **Infighter** залил соляры на **Ogre Magi** со счетом **3/2/22**, выиграв пару раз вы казино
+  **Infighter** залил соляры на **Ogre Magi** со счетом **3/2/22**, выиграв пару раз в казино
   **Kēksiņš** затащил на **Silencer** со счетом **6/9/22**, обезмолвив всех врагов
   **Fesh** показал всем, что у него большой RP на **Magnus** и выиграл со счетом **9/5/20**
   **Sanya** пытался победить на **Ursa** со счетом **4/7/11**, но его когти похоже сточились
@@ -91,7 +95,7 @@ HERO_NAME, NICKNAME и KDA из секции информации о матче 
   **Infighter** вызвал помощь из параллельных миров на **Enigma** со счетом **5/14/27**
 """)
 
-phrase_generator = PhrasePrompt | giga
+phrase_generator = DESCRIBE_MATCH_PROMPT | giga
 
 
 @dataclass
@@ -106,7 +110,7 @@ class DotaRecentMatch:
     game_mode: str
     url: str
 
-    def to_giga(self) -> Dict[str, str]:
+    def to_context(self) -> Dict[str, str]:
         return {
             "win": self.win,
             "hero_name": self.hero_name,
@@ -161,11 +165,11 @@ async def dota_lastmatch(context: Context) -> None:
         await context.reply_to_user("Не могу найти твой последний матч")
         return
 
-    giga_response = phrase_generator.invoke(match.to_giga())
+    response = phrase_generator.invoke(match.to_context())
     emoji = context.normalize_emoji("clueless") if match.win else context.normalize_emoji("aware")
     await context.reply_to_user_with_embed(
         title="{} {} {}".format(match.date, match.game_mode, emoji),
-        description="{}\n\n[OpenDota] {}".format(giga_response.content, match.url),
+        description="{}\n\n[OpenDota] {}".format(response.content, match.url),
         color=0x00a0ea,
         thumbnail=match.hero_image_url
     )
@@ -187,3 +191,17 @@ def get_handlers() -> Dict[str, Handler]:
         "dota_lastmatch": dota_lastmatch,
         "silence": silence,
     }
+
+
+async def main():
+    for m in giga.get_models().data:
+        print(m)
+
+    match = await get_recent_match_info(55136643)
+    phrase = phrase_generator.invoke(match.to_context())
+    print(phrase.content)
+
+
+if __name__ == '__main__':
+    import asyncio
+    asyncio.run(main())
