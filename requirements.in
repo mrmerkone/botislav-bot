@@ -5,3 +5,4 @@ aiohttp==3.8.3
 pickledb==0.9.2
 ctor==0.3.2
 langchain_gigachat==0.3.1
+langchain-deepseek==0.1.3

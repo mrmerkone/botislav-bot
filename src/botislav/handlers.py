@@ -6,6 +6,7 @@ from typing import Dict, Callable, Awaitable, TypedDict, Optional
 from attr import dataclass
 from gigachat import context
 from langchain_core.prompts import PromptTemplate
+from langchain_deepseek import ChatDeepSeek
 from langchain_gigachat import GigaChat
 
 from botislav.context import Context
@@ -59,21 +60,30 @@ giga = GigaChat(
 # for gigachat token caching
 context.session_id_cvar.set("f29d33fa-27cc-4132-9a8e-049860952ec0")
 
+deepseek = ChatDeepSeek(
+    model="deepseek-chat",
+    temperature=0.5,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+)
+
 
 DESCRIBE_MATCH_PROMPT = PromptTemplate.from_template("""
 --- Задача ---
-Опиши последний матч в Dota 2 игрока! Обязятельно делай отсылки на способности HERO_NAME!
+Опиши последний матч в Dota 2 игрока! Обязятельно делай отсылки на способности HERO_NAME и добавляй похожие на них эмодзи!
 
 --- Вывод ---
 Будь ироничен и подшучивай над игроком! Обязательно шути! Твой текст не должен быть длинее 2 предложений!
-Если игрок выйграл и у него хороший счет восхваляй его используя самые сложные эпитеты!
+Если игрок выйграл и у него хороший счет восхваляй его используя сленг Dota 2!
 Если игрок выйграл и у него плохой счет шути что его затащила команда!
 Если игрок проиграл и у него плохой счет смейся над ним что он якорь и бесполезный!
 Если игорок проиграл и у него хороший счет пожалей его чтобы не было так обидно!
 Твой текст должен быть от мужского рода.
 
 --- Требования ---
-HERO_NAME, NICKNAME и KDA из секции информации о матче обязяательно длжны быть в твоем ответе! Выделяй их **!
+HERO_NAME, NICKNAME и SCORE из секции информации о матче обязяательно длжны быть в твоем ответе! Выделяй их **!
+KDA и HERO_DESCRIPTION в итоговом тексте быть не должно!
 
 --- Контекст ---
 Герой:
@@ -81,11 +91,20 @@ HERO_NAME, NICKNAME и KDA из секции информации о матче 
     HERO_DESCRIPTION - {hero_description}
 
 Информация о матче:
-    NICKNAME - {nickname}
     WIN - {win}
-    KDA (Убийсвта/Смерти/Ассистов) - {kda}
+    NICKNAME - {nickname}
+    KDA (Соотношение количества убийсвт и ассистов к количеству смертей) - {kda}
+    SCORE (Убийсвта/Смерти/Ассистов) - {score}
 
-Примеры:
+Определения плохого и хорошего счета:
+    KDA > 4 - игрок провел невероятный матч играя лучше всех и внес огромный вклад в исход матч
+    4 > KDA > 3 - игрок отыграл просто отлично и почти без ошибок, мастерски пользовался всеми способностями героя и был среди лучших игроков матча
+    3 > KDA > 2 - игрок хорошо отыграл, использовал способности вовремя и делал то что от него и ожидалось
+    2 > KDA > 1.5 - игрок отыграл средне либо явно не доигрывал, возможно много ошибался
+    1.5 > KDA > 1 - игрок отыграл плохо, много ошибался и был абузой для своей команды
+    1 > KDA > 0 - игрок отыграл ужасно и возможно играл на стороне противников либо стоял АФК
+    
+--- Примеры ---
   **Infighter** залил соляры на **Ogre Magi** со счетом **3/2/22**, выиграв пару раз в казино
   **Kēksiņš** затащил на **Silencer** со счетом **6/9/22**, обезмолвив всех врагов
   **Fesh** показал всем, что у него большой RP на **Magnus** и выиграл со счетом **9/5/20**
@@ -96,12 +115,14 @@ HERO_NAME, NICKNAME и KDA из секции информации о матче 
 """)
 
 phrase_generator = DESCRIBE_MATCH_PROMPT | giga
+# phrase_generator = DESCRIBE_MATCH_PROMPT | deepseek
 
 
 @dataclass
 class DotaRecentMatch:
     win: bool
-    kda: str
+    kda: float
+    score: str
     nickname: str
     hero_name: str
     hero_description: str
@@ -116,7 +137,8 @@ class DotaRecentMatch:
             "hero_name": self.hero_name,
             "hero_description": self.hero_description,
             "kda": self.kda,
-            "nickname": self.nickname
+            "nickname": self.nickname,
+            "score": self.score
         }
 
 
@@ -131,12 +153,13 @@ async def get_recent_match_info(opendota_account_id: int) -> Optional[DotaRecent
                 win=bool(player.win),
                 hero_name=hero_from_dota2_com.name_loc,
                 hero_description=hero_from_dota2_com.hype_loc,
-                kda="{}/{}/{}".format(player.kills, player.deaths, player.assists),
+                kda=(player.kills + player.assists) / (player.deaths or 1),
                 date=full_match.start_date,
                 nickname=player.personaname,
                 hero_image_url=hero_from_opendota.image_vert_url,
                 url=full_match.url,
-                game_mode=full_match.game_mode_localized
+                game_mode=full_match.game_mode_localized,
+                score="{}/{}/{}".format(player.kills, player.deaths, player.assists),
             )
     return None
 
@@ -194,10 +217,12 @@ def get_handlers() -> Dict[str, Handler]:
 
 
 async def main():
-    for m in giga.get_models().data:
-        print(m)
+    # for m in giga.get_models().data:
+    #     print(m)
 
-    match = await get_recent_match_info(55136643)
+    match = await get_recent_match_info(54190916)
+    # match = await get_recent_match_info(102349859)
+    # match = await get_recent_match_info(55136643)
     phrase = phrase_generator.invoke(match.to_context())
     print(phrase.content)
 
