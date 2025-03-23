@@ -60,13 +60,13 @@ giga = GigaChat(
 # for gigachat token caching
 context.session_id_cvar.set("f29d33fa-27cc-4132-9a8e-049860952ec0")
 
-deepseek = ChatDeepSeek(
-    model="deepseek-chat",
-    temperature=0.5,
-    max_tokens=None,
-    timeout=None,
-    max_retries=2,
-)
+# deepseek = ChatDeepSeek(
+#     model="deepseek-chat",
+#     temperature=0.5,
+#     max_tokens=None,
+#     timeout=None,
+#     max_retries=2,
+# )
 
 
 DESCRIBE_MATCH_PROMPT = PromptTemplate.from_template("""
