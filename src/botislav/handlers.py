@@ -75,7 +75,7 @@ DESCRIBE_MATCH_PROMPT = PromptTemplate.from_template("""
 
 --- Вывод ---
 Будь ироничен и подшучивай над игроком! Обязательно шути! Твой текст не должен быть длинее 2 предложений!
-Если игрок выйграл и у него хороший счет восхваляй его используя сленг Dota 2!
+Если игрок выйграл и у него хороший счет восхваляй его!
 Если игрок выйграл и у него плохой счет шути что его затащила команда!
 Если игрок проиграл и у него плохой счет смейся над ним что он якорь и бесполезный!
 Если игорок проиграл и у него хороший счет пожалей его чтобы не было так обидно!
@@ -220,9 +220,9 @@ async def main():
     # for m in giga.get_models().data:
     #     print(m)
 
-    match = await get_recent_match_info(54190916)
+    # match = await get_recent_match_info(54190916)
     # match = await get_recent_match_info(102349859)
-    # match = await get_recent_match_info(55136643)
+    match = await get_recent_match_info(55136643)
     phrase = phrase_generator.invoke(match.to_context())
     print(phrase.content)
 
