@@ -54,7 +54,7 @@ giga = GigaChat(
     scope="GIGACHAT_API_PERS",
     verify_ssl_certs=False,
     max_tokens=100,
-    top_p=0.5
+    top_p=0.8
 )
 
 # for gigachat token caching
@@ -220,9 +220,9 @@ async def main():
     # for m in giga.get_models().data:
     #     print(m)
 
-    # match = await get_recent_match_info(54190916)
-    # match = await get_recent_match_info(102349859)
-    match = await get_recent_match_info(55136643)
+    match = await get_recent_match_info(54190916)
+    #match = await get_recent_match_info(102349859)
+    #match = await get_recent_match_info(55136643)
     phrase = phrase_generator.invoke(match.to_context())
     print(phrase.content)
 
