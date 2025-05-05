@@ -50,11 +50,11 @@ async def link_account(context: Context) -> None:
 
 giga = GigaChat(
     credentials=os.getenv("GIGACHAT_TOKEN"),
-    model="GigaChat-2-Max",
+    model="GigaChat-2-Pro",
     scope="GIGACHAT_API_PERS",
     verify_ssl_certs=False,
     max_tokens=100,
-    top_p=0.8
+    top_p=0.9
 )
 
 # for gigachat token caching
@@ -83,27 +83,33 @@ DESCRIBE_MATCH_PROMPT = PromptTemplate.from_template("""
 
 --- Требования ---
 HERO_NAME, NICKNAME и SCORE из секции информации о матче обязяательно длжны быть в твоем ответе! Выделяй их **!
-KDA и HERO_DESCRIPTION в итоговом тексте быть не должно!
+KDA и HERO_DESCRIPTION в итоговом тексте быть не должно! Не упоминайй количество убийств, смертей и помощи отдельно от счета
 
 --- Контекст ---
-Герой:
-    HERO_NAME - {hero_name}
-    HERO_DESCRIPTION - {hero_description}
+Описание параметров матча: 
+    HERO_NAME - Имя героя
+    HERO_DESCRIPTION - Краткое описание героя
+    WIN - Победил ли игрок в этом матче
+    NICKNAME - Псевдоним игрока
+    KDA - Соотношение количества убийсвт и помощи в убийствах к количеству смертей
+    SCORE - Счет игрока (убийсвта/смерти/помощи в убийствах)
 
-Информация о матче:
-    WIN - {win}
-    NICKNAME - {nickname}
-    KDA (Соотношение количества убийсвт и ассистов к количеству смертей) - {kda}
-    SCORE (Убийсвта/Смерти/Ассистов) - {score}
-
-Определения плохого и хорошего счета:
-    KDA > 4 - игрок провел невероятный матч играя лучше всех и внес огромный вклад в исход матч
-    4 > KDA > 3 - игрок отыграл просто отлично и почти без ошибок, мастерски пользовался всеми способностями героя и был среди лучших игроков матча
+Определение плохого и хорошего счета:
+    KDA > 4 - игрок провел невероятный матч играя лучше всех и внес огромный вклад в исход матча
+    4 > KDA > 3 - игрок отыграл отлично и почти без ошибок, мастерски пользовался всеми способностями героя и был среди лучших игроков матча
     3 > KDA > 2 - игрок хорошо отыграл, использовал способности вовремя и делал то что от него и ожидалось
     2 > KDA > 1.5 - игрок отыграл средне либо явно не доигрывал, возможно много ошибался
     1.5 > KDA > 1 - игрок отыграл плохо, много ошибался и был абузой для своей команды
     1 > KDA > 0 - игрок отыграл ужасно и возможно играл на стороне противников либо стоял АФК
-    
+
+Информация о матче:
+    HERO_NAME - {hero_name}
+    HERO_DESCRIPTION - {hero_description}
+    WIN - {win}
+    NICKNAME - {nickname}
+    KDA - {kda}
+    SCORE - {score}
+
 --- Примеры ---
   **Infighter** залил соляры на **Ogre Magi** со счетом **3/2/22**, выиграв пару раз в казино
   **Kēksiņš** затащил на **Silencer** со счетом **6/9/22**, обезмолвив всех врагов
@@ -220,9 +226,10 @@ async def main():
     # for m in giga.get_models().data:
     #     print(m)
 
-    match = await get_recent_match_info(54190916)
-    #match = await get_recent_match_info(102349859)
-    #match = await get_recent_match_info(55136643)
+    # match = await get_recent_match_info(54190916)
+    # match = await get_recent_match_info(102349859)
+    # match = await get_recent_match_info(55136643)
+    match = await get_recent_match_info(77264404)
     phrase = phrase_generator.invoke(match.to_context())
     print(phrase.content)
 
