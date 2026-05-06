@@ -50,7 +50,7 @@ async def link_account(context: Context) -> None:
 
 giga = GigaChat(
     credentials=os.getenv("GIGACHAT_TOKEN"),
-    model="GigaChat-2-Pro",
+    model="GigaChat-2-Max",
     scope="GIGACHAT_API_PERS",
     verify_ssl_certs=False,
     max_tokens=100,
